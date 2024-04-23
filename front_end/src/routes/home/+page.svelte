@@ -8,7 +8,7 @@
 
 
 
-<TabGroup>
+<TabGroup justify="justify-center">
   <Tab bind:group={currentTab} name="Summarizer" value ={0}> Summarizer </Tab>
   <Tab bind:group={currentTab} name="fileUploader" value ={1}>Upload File</Tab>
 	<svelte:fragment slot="panel">
