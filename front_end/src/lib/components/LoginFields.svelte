@@ -8,8 +8,11 @@
  }
 
 </script>
+<!-- create flex div -->
 <div class="flex justify-center p-4">
+<!-- create card compnenet  -->
 <div class="card p-4 w-1/5 space-y-4 ">
+<!-- form html -->
   <label class="label ">
     <span>Username</span>
     <input class="input p-2" type="text" bind:value={username}/>
