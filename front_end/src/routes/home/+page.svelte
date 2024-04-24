@@ -1,8 +1,7 @@
 <script>
   import { TabGroup, Tab, TabAnchor } from '@skeletonlabs/skeleton';
   import CodeSummComponent from '$lib/components/CodeSummComponent.svelte';
-  import LoginFields from '$lib/components/LoginFields.svelte';
-  
+  import FileUploadComponent from '$lib/components/FileUploadComponent.svelte';
   let currentTab = 0;
 </script>
 
@@ -15,7 +14,7 @@
 		{#if currentTab === 0}
       <CodeSummComponent/>
 		{:else if currentTab === 1}
-      <LoginFields/>
+      <FileUploadComponent/>
 		{/if}
 	</svelte:fragment>
 
