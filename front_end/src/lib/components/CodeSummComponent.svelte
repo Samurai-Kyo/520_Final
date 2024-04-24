@@ -36,6 +36,7 @@ function summarizeCode(){
 
 function sendReview(nScore,uScore,cScore,evalText){
   //todo
+  alert(evalText)
 }
 
 
