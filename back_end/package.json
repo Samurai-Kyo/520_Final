@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "type": "module",
   "license": "AGPL-version-3.0",
   "private": false,
   "engines": {
@@ -28,9 +27,12 @@
     "test": ""
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.20.8",
     "express": "^4.19.2",
     "helmet": "^7.1.0",
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "mysql": "^2.18.1",
+    "openai": "^4.38.5"
   },
   "devDependencies": {
     "loadtest": "^8.0.9",
