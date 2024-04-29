@@ -35,6 +35,15 @@ class SessionToken {
     }
 }
 
+class SummarizationContent {
+    constructor(completions) {
+        this.content = [];
+        completions.forEach((element) => {
+            this.content.push({model: element.model, text: element.text, rating: 0});
+        });
+    }
+}
+
 function checkSession(username, token) {
     let index = sessions.findIndex((element) => element.token === token);
     if (index === -1) return false;
@@ -43,6 +52,26 @@ function checkSession(username, token) {
         return false;
     }
     return sessions[index].username === username;
+}
+
+async function saveContent(username, code, completions) {
+    try {
+    const connection = await pool.getConnection();
+    const [results] = await connection.query("SELECT * FROM credentials WHERE username = ?", [username]);
+    if(results.length === 0) {
+        throw new Error("User not found in database.");
+    }
+    let content = new SummarizationContent(completions);
+    let contentString = JSON.stringify(content);
+    let query = 'INSERT INTO summarizations (username, inputCode, content) VALUES (?, ?, ?)';
+    await connection.query(query, [username, code, contentString]);
+    console.log("Content saved for user: ", username)
+    connection.release();
+    }
+    catch (err) {
+        console.log("Error saving content: ", err);
+        throw new Error("Error saving content.");
+    }
 }
 
 async function serverSetup() {
@@ -111,6 +140,59 @@ app.get('/login', async (req, res) => {
     catch (err) {
         console.log("Error in /login: ", err);
         res.status(500).send("Internal server error");
+    }
+});
+
+app.post('/summarize', async (req, res) => {
+    try {
+    const username = req.headers.username;
+    const token = req.headers.token;
+    console.log(token)
+    // if(!checkSession(req.headers.username, token)) {
+    //     console.log(sessions)
+    //     res.status(401).send("Invalid session token.");
+    //     return;
+    // }
+    const code = req.body.code;
+    const models = req.body.models.split(",");
+    console.log(models)
+    let completions = [];
+    const sysPrompt = "Summarize the following code: \n" + code + "\n\n";
+    for(chatModel of models) {
+        if(chatModel === "gpt-4-turbo" || chatModel === "gpt-3.5-turbo"){
+            console.log("Performing OpenAI completion for model: ", chatModel);
+            thisSummarization = await openaiInstance.chat.completions.create({
+                model: chatModel,
+                messages: [{role: 'system', content: sysPrompt + code}],
+                n: 1
+            })
+            completions.push({model: chatModel, text:thisSummarization.choices[0].message.content})
+        }
+        else if(chatModel === "claude-3-opus-20240229" || chatModel === "claude-3-haiku-20240307") {
+            console.log("Performing Anthropic completion for model: ", chatModel);
+            thisSummarization = await anthropicInstance.messages.create({
+                model: chatModel,
+                system: sysPrompt,
+                messages: [{role: 'user', content: code}],
+                max_tokens: 1000,
+            })
+            completions.push({model: chatModel, text: thisSummarization.content[0].text});
+        }
+        else {
+            res.status(400).send("Invalid model name: " + chatModel);
+            return;
+        }
+    }
+
+    console.log(completions)
+    res.send(completions);
+    res.end();
+    console.log("Provided " + models.length.toString() +  " completions for user: ", username);
+    await saveContent(username, code, completions);
+    } catch (err) {
+        console.log("Error in /summarize: ", err);
+        res.status(500).send("Internal server error");
+        res.end();
     }
 });
 

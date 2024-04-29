@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS summarizations (
     username VARCHAR(255) NOT NULL,
     inputCode TEXT NOT NULL,
     content TEXT NOT NULL,
-    date DATE NOT NULL,
+    timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
     FOREIGN KEY (username) REFERENCES credentials(username)
 ) DEFAULT CHARSET=utf8;
