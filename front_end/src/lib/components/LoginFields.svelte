@@ -11,7 +11,7 @@
 <!-- create flex div -->
 <div class="flex justify-center p-4">
 <!-- create card compnenet  -->
-<div class="card p-4 w-1/5 space-y-4 ">
+<div class="card p-4 w-1/2 space-y-4 ">
 <!-- form html -->
   <label class="label ">
     <span>Username</span>
