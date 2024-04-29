@@ -1,8 +1,8 @@
 {
     "OpenAI": "",
     "Anthropic": "",
-    "sqlAddress": "",
-    "sqlUser": "",
-    "sqlPassword": ""
+    "sqlAddress": "127.0.0.1",
+    "sqlUser": "root",
+    "sqlPassword": "meow"
 }
 
