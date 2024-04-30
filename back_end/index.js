@@ -44,13 +44,14 @@ class SummarizationContent {
     }
 }
 
-function checkSession(username, token) {
+function checkSession(username, token, adminRequired = false) {
     let index = sessions.findIndex((element) => element.token === token);
     if (index === -1) return false;
     if (sessions[index].expiry < Date.now()) {
         sessions.splice(index, 1);
         return false;
     }
+    if (adminRequired && !sessions[index].isAdmin) return false;
     return sessions[index].username === username;
 }
 
@@ -143,16 +144,49 @@ app.get('/login', async (req, res) => {
     }
 });
 
+app.get('/createAccount', async (req, res) => {
+    try {
+    const username = req.headers.username;
+    const token = req.headers.token;
+    const newUsername = req.headers.newusername;
+    const newPassword = req.headers.newpassword;
+    const shouldBeAdmin = req.headers.newadmin === "true";
+    if(!checkSession(username, token, true)) {
+        res.status(401).send("Invalid session token, or lacking privileges.");
+        res.end();
+        return;
+    }
+    const query = 'SELECT * FROM credentials WHERE username = ?';
+    const [results] = await pool.query(query, [newUsername]);
+    if(results.length > 0) {
+        res.status(400).send("Username already exists.");
+        res.end();
+        return;
+    }
+    
+    const hashedPassword = crypto.createHash('sha256').update(newPassword).digest('base64');
+    const query2 = 'INSERT INTO credentials (username, password, isAdmin) VALUES (?, ?, ?)';
+    await pool.query(query2, [newUsername, hashedPassword, shouldBeAdmin ? 1 : 0]);
+    res.send("Account created successfully.");
+    res.end();
+    console.log("Account created: ", username);
+    }
+    catch (err) {
+        console.log("Error in /createAccount: ", err);
+        res.status(500).send("Internal server error");
+    }
+});
+
 app.post('/summarize', async (req, res) => {
     try {
     const username = req.headers.username;
     const token = req.headers.token;
     console.log(token)
-    // if(!checkSession(req.headers.username, token)) {
-    //     console.log(sessions)
-    //     res.status(401).send("Invalid session token.");
-    //     return;
-    // }
+    if(!checkSession(req.headers.username, token)) {
+        console.log(sessions)
+        res.status(401).send("Invalid session token.");
+        return;
+    }
     const code = req.body.code;
     const models = req.body.models.split(",");
     console.log(models)
@@ -193,6 +227,61 @@ app.post('/summarize', async (req, res) => {
         console.log("Error in /summarize: ", err);
         res.status(500).send("Internal server error");
         res.end();
+    }
+});
+
+app.get('/getSummarizations', async (req, res) => {
+    try {
+    const username = req.headers.username;
+    const token = req.headers.token;
+    if(!checkSession(username, token)) {
+        res.status(401).send("Invalid session token.");
+        return;
+    }
+    const query = 'SELECT * FROM summarizations WHERE username = ?';
+    const [results] = await pool.query(query, [username]);
+    let content = [];
+    results.forEach((element) => {
+        content.push({id: element.id, code: element.inputCode, completions: JSON.parse(element.content)});
+    });
+    res.send(content);
+    res.end();
+    console.log("Provided content for user: ", username);
+    } catch (err) {
+        console.log("Error in /getSummarizations: ", err);
+        res.status(500).send("Internal server error");
+        res.end();
+    }
+});
+
+app.get('/setRating', async (req, res) => {
+    try {
+    const username = req.headers.username;
+    const token = req.headers.token;
+    if(!checkSession(username, token)) {
+        res.status(401).send("Invalid session token.");
+        return;
+    }
+    const id = req.headers.id;
+    const ratings = Array.from(req.headers.ratings);
+    const query = 'SELECT * FROM summarizations WHERE id = ?';
+    const [results] = await pool.query(query, [id]);
+    if(results.length === 0) {
+        res.status(400).send("Invalid ID.");
+        return;
+    }
+    let content = JSON.parse(results[0].content);
+    for(let i = 0; i < content.content.length; i++) {
+        content.content[i].rating = ratings[i];
+    }
+    let contentString = JSON.stringify(content);
+    const query2 = 'UPDATE summarizations SET content = ? WHERE id = ?';
+    await pool.query(query2, [contentString, id]);
+    res.send("Ratings updated successfully.");
+    }
+    catch (err) {
+        console.log("Error in /setRating: ", err);
+        res.status(500).send("Internal server error");
     }
 });
 
