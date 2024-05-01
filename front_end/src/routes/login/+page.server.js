@@ -1,0 +1,37 @@
+import { redirect } from '@sveltejs/kit';
+import { fail } from '@sveltejs/kit';
+import { login, register } from '../api/login';
+
+export const actions = {
+	login: async ({ cookies, request }) => {
+		const data = await request.formData();
+		const username = data.get('Username');
+		const password = data.get('Password');
+		if (!username || !password) {
+			return fail(400, { error: 'Username and password are required' });
+		}
+
+		// @ts-ignore
+		const response = await login(username, password);
+		// @ts-ignore
+		cookies.set('username', username, { path: '/home' });
+		// @ts-ignore
+		cookies.set('isAdmin', response.isAdmin, { path: '/home' });
+		// @ts-ignore
+		cookies.set('token', response.token, { path: '/home' });
+		throw redirect(303, '/home');
+	},
+	register: async ({ cookies, request }) => {
+		cookies.set('username', 'placeholder', { path: '/home' });
+		const data = await request.formData();
+		const username = data.get('Username');
+		const password = data.get('Password');
+		// @ts-ignore
+		const response = await register(username, password);
+		if (response) {
+			alert('User Registered');
+		} else {
+			alert('Registration failed');
+		}
+	}
+};

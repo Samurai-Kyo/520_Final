@@ -2,17 +2,17 @@
 	import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
 	import { Ratings } from '@skeletonlabs/skeleton';
 
-	//langauge dropdown
+	//language dropdown
 	let selectedLanguage = 'javascript';
 
 	// code input
 	let code = '';
-	// show accordian
+	// show accordion
 	let showList = false;
 
-	// fill to populate accordian
+	// fill to populate accordion
 	//nScore = naturalnessScore, uScore = usefulnessScore, cScore = consistencyScore
-	let listOfSummerizedCode = [
+	let listOfSummarizedCode = [
 		{
 			id: 0,
 			apiName: 'ChatGPT 3.5',
@@ -66,22 +66,27 @@
 <div class="flex-col justify-center p-4">
 	<!-- input box area -->
 	<div class="card w-full space-y-4 p-4">
-		<textarea class="textarea p-4" placeholder="Paste Code Here" bind:value={code} />
+		<textarea class="textarea p-4" placeholder="Paste Code Here" name='Code' />
 		<div class="flex justify-evenly">
-			<select class="select w-1/4 p-1" bind:value={selectedLanguage}>
-				<option value={'javascript'}> Javascript </option>
-				<option value={'typescript'}> Typesript </option>
-				<option value={'cpp'}> C++</option>
+			<select class="select w-1/4 p-1" name='Language'>
+				<option value={'Javascript'}> Javascript </option>
+				<option value={'Typescript'}> Typescript </option>
+				<option value={'Java'}> Java</option>
+				<option value={'C#'}> C#</option>
+				<option value={'C++'}> C++</option>
+				<option value={'PHP'}> PHP</option>
+				<option value={'Swift'}> Swift</option>
+				<option value={'Ruby'}> Ruby</option>
 			</select>
-			<button class="variant-filled-secondary btn" on:click={summarizeCode}>Submit</button>
+			<button formaction="?/login" type="submit" class="variant-filled-secondary btn">Submit</button>
 		</div>
 	</div>
 
-	<!-- Show the summerizations -->
+	<!-- Show the summarizations -->
 	{#if showList}
 		<div class="card w-full space-y-4 p-4">
 			<Accordion>
-				{#each listOfSummerizedCode as summary}
+				{#each listOfSummarizedCode as summary}
 					<AccordionItem>
 						<svelte:fragment slot="summary">{summary.apiName}</svelte:fragment>
 						<svelte:fragment slot="content">

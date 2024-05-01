@@ -1,12 +1,13 @@
 <script>
+	export let data;
 	import { TabGroup, Tab, TabAnchor } from '@skeletonlabs/skeleton';
-	import CodeSummComponent from '$lib/components/CodeSummComponent.svelte';
+	import CodeSummaryComponent from '$lib/components/CodeSummaryComponent.svelte';
 	import FileUploadComponent from '$lib/components/FileUploadComponent.svelte';
 	import AdminComponent from '$lib/components/AdminComponent.svelte';
 	let currentTab = 0;
-	//TODO: server request to check if user is Admin
 	//Admin Flag
-	let isAdmin = true;
+	let isAdmin = data.isAdmin;
+
 </script>
 
 <TabGroup justify="justify-center">
@@ -17,7 +18,7 @@
 	{/if}
 	<svelte:fragment slot="panel">
 		{#if currentTab === 0}
-			<CodeSummComponent />
+			<CodeSummaryComponent />
 		{:else if currentTab === 1}
 			<FileUploadComponent />
 		{:else if currentTab === 2}
