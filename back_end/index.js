@@ -104,7 +104,7 @@ async function serverSetup() {
     });
     let [users] = await pool.query("SELECT * FROM credentials;");
     let adminAcc = users.find((element) => element.isAdmin === 1 && element.username === "admin");
-    if(adminAcc.password === "admin") {
+    if(adminAcc.password === "jGl25bVBBBW96Qi9Te4V37Fnqchz/Eu4qB9vKrRIqRg=") {
         console.log("Admin account still has default password!! Please change it as soon as possible");
     }
     app.listen(3000, () => {
