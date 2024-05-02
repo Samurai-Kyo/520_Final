@@ -22,7 +22,7 @@
 		{:else if currentTab === 1}
 			<FileUploadComponent />
 		{:else if currentTab === 2}
-			<AdminComponent />
+			<AdminComponent data={data}/>
 		{/if}
 	</svelte:fragment>
 </TabGroup>

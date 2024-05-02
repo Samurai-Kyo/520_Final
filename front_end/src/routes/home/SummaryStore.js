@@ -15,11 +15,11 @@ const sharedVariable = (() => {
  */
 export class Summary {
 	/**
-	 * @param {string} code
+	 * @param {string} summary
 	 * @param {string} model
 	 */
-	constructor(code, model) {
-		this.summary = code;
+	constructor(summary, model) {
+		this.summary = summary;
 		this.apiName = model;
 		(this.nScore = 1), (this.uScore = 1), (this.cScore = 1), (this.evalText = '');
 		this.id = sharedVariable.increment();
@@ -63,10 +63,10 @@ export class Summary {
 	}
 
 	/**
-	 * @param {any} json
+	 * @param {{ summary: string; model: string; }} json
 	 */
 	static fromJson(json) {
-		return new Summary(json.code, json.model);
+		return new Summary(json.summary, json.model);
 	}
 }
 
@@ -82,7 +82,7 @@ export class Summaries {
 	}
 
 	/**
-	 * @param {any} json
+	 * @param {{ summary: string; model: string; }} json
 	 */
 	addSummary(json) {
 		const summary = Summary.fromJson(json);

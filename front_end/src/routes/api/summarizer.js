@@ -3,7 +3,7 @@
  * @param {string} token
  * @param {string} code
  * @param {Array<string>} models
- * @returns {Promise<[{code: string, model: string}]>}
+ * @returns {Promise<[{summary: string, model: string}]>}
  */
 export async function summarizeCode(
 	username,
@@ -22,14 +22,19 @@ export async function summarizeCode(
 		});
 		if (response.ok) {
 			const data = await response.json();
-			return data;
+			const remappedData = data.map((/** @type {{ text: string; model: string; }} */ summary) => {
+				return { summary: summary.text, model: summary.model };
+			});
+			console.log('summarizer.js -> remappedData: ');
+			console.log(remappedData);
+			return remappedData;
 		} else {
 			alert('Summary failed');
-			return [{ code: '', model: '' }];
+			return [{ summary: '', model: '' }];
 		}
 	} catch (error) {
 		console.log(error);
-		return [{ code: '', model: '' }];
+		return [{ summary: '', model: '' }];
 	}
 }
 
