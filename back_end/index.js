@@ -122,6 +122,9 @@ async function serverSetup() {
     }); 
 }
 
+// login endpoint allows you to log in with the given username and password.
+// The headers should contain the username and password.
+// If the login is successful, the response will be the session token (base64 string) for the user, which needs to be attached as a header to all requests to other endpoints.
 app.get('/login', async (req, res) => {
     try {
     const username = req.headers.username;
@@ -154,6 +157,10 @@ app.get('/login', async (req, res) => {
     }
 });
 
+// createAccount endpoint allows you to create a new account with the given username and password.
+// The headers should contain the new username and password.
+// If the new account should be an admin account, the header newadmin should be set to "true". -- This requires an admin's session token to be provided.
+// If the account is created successfully, the response will be "Account created successfully."
 app.get('/createAccount', async (req, res) => {
     try {
     const newUsername = req.headers.newusername;
@@ -196,6 +203,17 @@ app.get('/createAccount', async (req, res) => {
     }
 });
 
+// summarize endpoint allows you to summarize a given code snippet using the models provided in the body.
+// The body should contain the code to be summarized, and a list of models to use for summarization, as one string, with the model names separated by commas.
+// The headers should contain the username and token of the user making the request.
+// The response will be formatted as follows: 
+// [
+//     {model: "model name", text: "completion text"},
+//     {model: "model name", text: "completion text"},
+//     ...
+//     {id: id}
+// ]
+// The ID is the ID of the summarization in the database, and can be used to retrieve the summarization later, or to upload ratings for the summarization.
 app.post('/summarize', async (req, res) => {
     try {
     const username = req.headers.username;
@@ -251,6 +269,11 @@ app.post('/summarize', async (req, res) => {
     }
 });
 
+
+// getSummarizations endpoint allows you to get all the summarizations that a user has uploaded.
+// The headers should contain the username and token of the user making the request.
+// The response will be an array of objects, each containing the ID of the summarization, the code that was summarized, and the completions provided by the models.
+// Completions are of the form: {model: String, text: String, naturalRating: Int(0-10), usefulRating: Int(0-10), consistentRating: Int(0-10)}
 app.get('/getSummarizations', async (req, res) => {
     try {
     const username = req.headers.username;
@@ -312,27 +335,45 @@ app.post('/uploadSummarization', async (req, res) => {
     }
 });
 
-app.get('/setRating', async (req, res) => {
+// setRating endpoint allows you to set the ratings for a given summarization.
+// The body should contain the ratings in the following format:
+// {
+//     ratings: [
+//         {model: "model name", naturalRating: 0, usefulRating: 0, consistentRating: 0},
+//         {model: "model name", naturalRating: 0, usefulRating: 0, consistentRating: 0},
+//         ...
+//     ]
+// }
+// There should only be one rating object for each model name, and there should only be ratings for models that provided summaries for the given ID. 
+// The headers should contain the ID of the summarization you are rating (returned by /summarize, or /getSummaries), and the username and token of the user making the request.
+app.post('/setRating', async (req, res) => {
     try {
     const username = req.headers.username;
     const token = req.headers.token;
+    const ratings = req.body.ratings; // Array of ratings in the form: {model: "model name", naturalRating: 0, usefulRating: 0, consistentRating: 0}
     if(!checkSession(username, token)) {
         res.status(401).send("Invalid session token.");
         return;
     }
     const id = req.headers.id;
-    const ratings = Array.from(req.headers.ratings);
     const query = 'SELECT * FROM summarizations WHERE id = ?';
     const [results] = await pool.query(query, [id]);
     if(results.length === 0) {
         res.status(400).send("Invalid ID.");
         return;
     }
-    let content = JSON.parse(results[0].content);
-    for(let i = 0; i < content.content.length; i++) {
-        content.content[i].rating = ratings[i];
+    let oldContent = JSON.parse(results[0].content);
+    for (let rating of ratings) {
+        let index = oldContent.findIndex((element) => element.model === rating.model);
+        if(index === -1) {
+            res.status(400).send("Invalid model name: " + rating.model);
+            return;
+        }
+        oldContent[index].naturalRating = rating.naturalRating;
+        oldContent[index].usefulRating = rating.usefulRating;
+        oldContent[index].consistentRating = rating.consistentRating;
     }
-    let contentString = JSON.stringify(content);
+    let contentString = JSON.stringify(oldContent);
     const query2 = 'UPDATE summarizations SET content = ? WHERE id = ?';
     await pool.query(query2, [contentString, id]);
     res.send("Ratings updated successfully.");
@@ -340,6 +381,47 @@ app.get('/setRating', async (req, res) => {
     catch (err) {
         console.log("Error in /setRating: ", err);
         res.status(500).send("Internal server error");
+    }
+});
+
+app.get('/stats', async (req, res) => {
+    try {
+    const username = req.headers.username;
+    const token = req.headers.token;
+    if(!checkSession(username, token, true)) {
+        res.status(401).send("Invalid session token.");
+        return;
+    }
+    const query = 'SELECT * FROM summarizations';
+    const [results] = await pool.query(query);
+    let content = [];
+    results.forEach((element) => {
+        content.push({id: element.id, username: element.username, code: element.inputCode, completions: JSON.parse(element.content).content});
+    });
+    console.log(content)
+    let stats = {};
+    stats.totalSummarizations = content.length;
+    let totalNaturalRating = 0;
+    let totalUsefulRating = 0;
+    let totalConsistentRating = 0;
+    let n = 0
+    for(let summarization of content) {
+        for(let completion of summarization.completions) {
+            totalNaturalRating += completion.naturalRating;
+            totalUsefulRating += completion.usefulRating;
+            totalConsistentRating += completion.consistentRating;
+            n++;
+        }
+    }
+    stats.averageNaturalRating = totalNaturalRating / n;
+    stats.averageUsefulRating = totalUsefulRating / n;
+    stats.averageConsistentRating = totalConsistentRating / n;
+    res.send(stats);
+    console.log("Provided content for admin: ", username);
+    } catch (err) {
+        console.log("Error in /stats: ", err);
+        res.status(500).send("Internal server error");
+        res.end();
     }
 });
 
