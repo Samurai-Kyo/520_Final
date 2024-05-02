@@ -146,11 +146,20 @@ app.get('/login', async (req, res) => {
 
 app.get('/createAccount', async (req, res) => {
     try {
-    const username = req.headers.username;
-    const token = req.headers.token;
     const newUsername = req.headers.newusername;
     const newPassword = req.headers.newpassword;
     const shouldBeAdmin = req.headers.newadmin === "true";
+    
+    if(shouldBeAdmin) {
+        const token = req.headers.token;
+        const username = req.headers.username;
+        if(!checkSession(username, token, true)) {
+            res.status(401).send("Invalid session token, or lacking privileges.");
+            res.end();
+            return;
+        }
+    }
+
     if(!checkSession(username, token, true)) {
         res.status(401).send("Invalid session token, or lacking privileges.");
         res.end();
