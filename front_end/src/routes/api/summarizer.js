@@ -1,11 +1,11 @@
 /**
  * @param {string} username
  * @param {string} token
- *  @param {string} code
- *  @param {Array<string>} models
- * @returns {Promise<{code: Array<string>, models: Array<string>}>}
+ * @param {string} code
+ * @param {Array<string>} models
+ * @returns {Promise<[{code: string, model: string}]>}
  */
-export async function summerizeCode(
+export async function summarizeCode(
 	username,
 	token,
 	code,
@@ -18,18 +18,18 @@ export async function summerizeCode(
 				username: username,
 				token: token
 			},
-			body: JSON.stringify({ code: code, models: models })
+			body: JSON.stringify([{ code: code, models: models }])
 		});
 		if (response.ok) {
 			const data = await response.json();
-			return { code: data.code, models: data.models };
+			return data;
 		} else {
-			alert('Login failed');
-			return { code: [], models: [] };
+			alert('Summary failed');
+			return [{ code: '', model: '' }];
 		}
 	} catch (error) {
 		console.log(error);
-		return { code: [], models: [] };
+		return [{ code: '', model: '' }];
 	}
 }
 

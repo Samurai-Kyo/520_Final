@@ -9,26 +9,57 @@ const sharedVariable = (() => {
 	};
 })();
 
+/**
+ * @param {string} code
+ * @param {string} model
+ */
 export class Summary {
 	/**
 	 * @param {string} code
 	 * @param {string} model
 	 */
 	constructor(code, model) {
-		this.code = code;
-		this.model = model;
+		this.summary = code;
+		this.apiName = model;
+		(this.nScore = 1), (this.uScore = 1), (this.cScore = 1), (this.evalText = '');
 		this.id = sharedVariable.increment();
 	}
 	getCode() {
-		return this.code;
+		return this.summary;
 	}
 
 	getModel() {
-		return this.model;
+		return this.apiName;
 	}
 
 	getId() {
 		return this.id;
+	}
+
+	getScores() {
+		return { nScore: this.nScore, uScore: this.uScore, cScore: this.cScore };
+	}
+
+	/**
+	 * @param {number} nScore
+	 * @param {number} uScore
+	 * @param {number} cScore
+	 */
+	setScores(nScore, uScore, cScore) {
+		this.nScore = nScore;
+		this.uScore = uScore;
+		this.cScore = cScore;
+	}
+
+	getEvalText() {
+		return this.evalText;
+	}
+
+	/**
+	 * @param {string} evalText
+	 */
+	setEvalText(evalText) {
+		this.evalText = evalText;
 	}
 
 	/**
@@ -41,29 +72,30 @@ export class Summary {
 
 export class Summaries {
 	/**
-	 * @param {Array<Summary>} summmaries
+	 * @param {Array<Summary>} summaries
 	 */
-	constructor(summmaries = []) {
-		this.summmaries = summmaries;
+	constructor(summaries = []) {
+		this.summaries = summaries;
 	}
 	getSummaries() {
-		return this.summmaries;
+		return this.summaries;
 	}
 
 	/**
-     * @param {any} json
+	 * @param {any} json
 	 */
-	addTask(json) {
+	addSummary(json) {
 		const summary = Summary.fromJson(json);
-		this.summmaries.push(summary);
+		this.summaries.push(summary);
 	}
 
-
 	/**
-     * @param {any[]} json
-     */
+	 * @param {any[]} json
+	 */
 	static fromJson(json) {
-        const summaries =  new Summaries(json.map((summary) => new Summary(summary.code, summary.model));
+		const summaries = new Summaries(
+			json.map((summary) => new Summary(summary.code, summary.model))
+		);
 		return summaries;
 	}
 }
@@ -71,4 +103,4 @@ export class Summaries {
 /**
  * This is the store that will hold the list of tasks.
  */
-export const TaskStore = writable(Summaries.fromJson([]));
+export const Store = writable(Summaries.fromJson([]));

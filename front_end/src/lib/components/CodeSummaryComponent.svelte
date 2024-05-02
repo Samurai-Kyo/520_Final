@@ -1,74 +1,91 @@
 <script>
 	import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
 	import { Ratings } from '@skeletonlabs/skeleton';
-
+	import { Store, Summaries, Summary } from '../../routes/home/store';
 	//language dropdown
 	let selectedLanguage = 'javascript';
 
 	// code input
 	let code = '';
 	// show accordion
-	let showList = false;
+	let showList = true;
+
+	// @ts-ignore
+	// Store.subscribe((_List) => {
+	// 	listOfSummarizedCode = _List;
+	// });
 
 	// fill to populate accordion
 	//nScore = naturalnessScore, uScore = usefulnessScore, cScore = consistencyScore
-	let listOfSummarizedCode = [
-		{
-			id: 0,
-			apiName: 'ChatGPT 3.5',
-			summary: 'Add API Summary Here',
-			nScore: 1,
-			uScore: 1,
-			cScore: 1,
-			evalText: ''
-		},
-		{
-			id: 1,
-			apiName: 'ChatGPT 4',
-			summary: 'Add API Summary Here',
-			nScore: 1,
-			uScore: 1,
-			cScore: 1,
-			evalText: ''
-		},
-		{
-			id: 2,
-			apiName: 'Claude Opus',
-			summary: 'Add API Summary Here',
-			nScore: 1,
-			uScore: 1,
-			cScore: 1,
-			evalText: ''
-		},
-		{
-			id: 3,
-			apiName: 'Claude Haiku',
-			summary: 'Add API Summary Here',
-			nScore: 1,
-			uScore: 1,
-			cScore: 1,
-			evalText: ''
-		}
-	];
+	let listOfSummarizedCode = new Summaries();
+	Store.subscribe((_summaries) => {
+		console.log(_summaries);
+		listOfSummarizedCode.summaries = _summaries.getSummaries();
+	});
+
+	// let listOfSummarizedCode =
+	// 	[{
+	// 		id: 0,
+	// 		apiName: 'ChatGPT 3.5',
+	// 		summary: 'Add API Summary Here',
+	// 		nScore: 1,
+	// 		uScore: 1,
+	// 		cScore: 1,
+	// 		evalText: ''
+	// 	},
+	// 	{
+	// 		id: 1,
+	// 		apiName: 'ChatGPT 4',
+	// 		summary: 'Add API Summary Here',
+	// 		nScore: 1,
+	// 		uScore: 1,
+	// 		cScore: 1,
+	// 		evalText: ''
+	// 	},
+	// 	{
+	// 		id: 2,
+	// 		apiName: 'Claude Opus',
+	// 		summary: 'Add API Summary Here',
+	// 		nScore: 1,
+	// 		uScore: 1,
+	// 		cScore: 1,
+	// 		evalText: ''
+	// 	},
+	// 	{
+	// 		id: 3,
+	// 		apiName: 'Claude Haiku',
+	// 		summary: 'Add API Summary Here',
+	// 		nScore: 1,
+	// 		uScore: 1,
+	// 		cScore: 1,
+	// 		evalText: ''
+	// 	}
+	// ];
 
 	function summarizeCode() {
-		//todo
 		showList = true;
 		alert(code + selectedLanguage);
+		// alert(code + selectedLanguage);
 	}
 
+	/**
+	 * @param {any} nScore
+	 * @param {any} uScore
+	 * @param {any} cScore
+	 * @param {any} evalText
+	 */
 	function sendReview(nScore, uScore, cScore, evalText) {
 		//todo
-		alert(evalText);
+		alert(nScore + uScore + cScore + evalText);
 	}
 </script>
 
 <div class="flex-col justify-center p-4">
 	<!-- input box area -->
 	<div class="card w-full space-y-4 p-4">
-		<textarea class="textarea p-4" placeholder="Paste Code Here" name='Code' />
+		<textarea class="textarea p-4" placeholder="Paste Code Here" bind:value={code} />
 		<div class="flex justify-evenly">
-			<select class="select w-1/4 p-1" name='Language'>
+			<select class="select w-1/4 p-1" name="Language">
 				<option value={'Javascript'}> Javascript </option>
 				<option value={'Typescript'}> Typescript </option>
 				<option value={'Java'}> Java</option>
@@ -78,7 +95,8 @@
 				<option value={'Swift'}> Swift</option>
 				<option value={'Ruby'}> Ruby</option>
 			</select>
-			<button formaction="?/login" type="submit" class="variant-filled-secondary btn">Submit</button>
+			<button  formaction="Summarize"  type="submit" class="variant-filled-secondary btn">Submit</button
+			>
 		</div>
 	</div>
 
@@ -86,7 +104,7 @@
 	{#if showList}
 		<div class="card w-full space-y-4 p-4">
 			<Accordion>
-				{#each listOfSummarizedCode as summary}
+				{#each listOfSummarizedCode.getSummaries() as summary (summary.getId())}
 					<AccordionItem>
 						<svelte:fragment slot="summary">{summary.apiName}</svelte:fragment>
 						<svelte:fragment slot="content">
