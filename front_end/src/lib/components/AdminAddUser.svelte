@@ -4,15 +4,7 @@
 
 
  function onLogIn(){
-   alert("Username: " + username + " Password: " + password)
- }
-
- function onRegister(){
-   alert("Username: " + username + " Password: " + password + " Registered!")
- }
-
- function forgotPassword(){
-   alert("Please Contact Admin to make New Account")
+   alert("Username: " + username + " Password: " + password + " Added !")
  }
 
 </script>
@@ -28,11 +20,9 @@
   <label class="label ">
     <span>Password</span>
     <input class="input p-2" type="password" bind:value={password}/>
-    <button type="button" class="btn btn-sm variant-filled-secondary" on:click={forgotPassword}>Forgot Password</button>
   </label>
   <div class="flex justify-around">
-  <a type="button" class="btn variant-filled-primary" href="/home">Login</a>
-  <a type="button" class="btn variant-filled-secondary" on:click={onRegister}>Register</a>
+  <a type="button" class="btn variant-filled-primary" on:click={onLogIn}>Add</a>
   </div>
 </div>
 </div>

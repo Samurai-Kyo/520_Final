@@ -1,14 +1,13 @@
 <script>
 	import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
-	let userList = [{ username: 'test' }, { username: 'Hello World' }];
+  import AdminAddUser from './AdminAddUser.svelte';
+	let userList = [{ username: 'Nick' }, { username: 'Keith' }];
 
 	function makeAdmin(username) {
-		alert(username);
+		alert(username + " is now Admin!");
 	}
 
-	function addUser(username, password) {
-		//todo
-	}
+
 </script>
 
 <div class="flex w-full flex-col p-5" />
@@ -17,6 +16,7 @@
 		<svlete:fragment slot="summary">Add User?</svlete:fragment>
 		<svelte:fragment slot="content">
 			<!-- todo	   -->
+      <AdminAddUser/>
 		</svelte:fragment>
 	</AccordionItem>
 	<AccordionItem>

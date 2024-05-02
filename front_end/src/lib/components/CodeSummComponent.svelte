@@ -54,12 +54,11 @@
 	function summarizeCode() {
 		//todo
 		showList = true;
-		alert(code + selectedLanguage);
 	}
 
 	function sendReview(nScore, uScore, cScore, evalText) {
 		//todo
-		alert(evalText);
+		alert("Review: " + evalText + " Naturalness: " + nScore + " Usefulness: " + uScore + " Consistency: " + cScore);
 	}
 </script>
 
@@ -153,6 +152,7 @@
 					</AccordionItem>
 				{/each}
 			</Accordion>
+	    <button class="variant-filled-secondary btn" on:click={summarizeCode}>Re-Submit</button>
 		</div>
 	{/if}
 </div>
