@@ -3,8 +3,23 @@
  let password = "";
 
 
- function onLogIn(){
-   alert("Username: " + username + " Password: " + password)
+ async function onLogIn(){
+  //  alert("Username: " + username + " Password: " + password)
+  const response = await fetch('http://localhost:3000/login', {
+    method: 'GET',
+    headers: {
+      'password': password,
+      'username': username,
+      'mode': 'cors'
+    },
+  });
+  if(response.status === 200){
+    const data = await response.text();
+    alert(data);
+  }
+  else{
+    alert("Invalid Username or Password");
+  }
  }
 
 </script>
