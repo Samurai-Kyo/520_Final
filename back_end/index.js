@@ -36,11 +36,18 @@ class SessionToken {
 }
 
 class SummarizationContent {
-    constructor(completions) {
+    constructor(completions, ratings = null) {
         this.content = [];
-        completions.forEach((element) => {
-            this.content.push({model: element.model, text: element.text, rating: 0});
-        });
+        if(ratings === null) {
+            completions.forEach((element) => {
+                this.content.push({model: element.model, text: element.text, naturalRating: 0, usefulRating: 0, consistentRating: 0});
+            });
+        }
+        else {
+            completions.forEach((element, index) => {
+                this.content.push({model: element.model, text: element.text, naturalRating: ratings[index].naturalRating, usefulRating: ratings[index].usefulRating, consistentRating: ratings[index].consistentRating});
+            });
+        }
     }
 }
 
@@ -55,25 +62,28 @@ function checkSession(username, token, adminRequired = false) {
     return sessions[index].username === username;
 }
 
-async function saveContent(username, code, completions) {
+async function saveContent(username, code, completions, ratings = null) {
     try {
     const connection = await pool.getConnection();
     const [results] = await connection.query("SELECT * FROM credentials WHERE username = ?", [username]);
     if(results.length === 0) {
         throw new Error("User not found in database.");
     }
-    let content = new SummarizationContent(completions);
+    let content = new SummarizationContent(completions, ratings);
     let contentString = JSON.stringify(content);
     let query = 'INSERT INTO summarizations (username, inputCode, content) VALUES (?, ?, ?)';
     await connection.query(query, [username, code, contentString]);
     console.log("Content saved for user: ", username)
     connection.release();
+    return connection.insertId;
     }
     catch (err) {
         console.log("Error saving content: ", err);
         throw new Error("Error saving content.");
     }
 }
+
+
 
 async function serverSetup() {
     const connection = await pool.getConnection();
@@ -149,7 +159,7 @@ app.get('/createAccount', async (req, res) => {
     const newUsername = req.headers.newusername;
     const newPassword = req.headers.newpassword;
     const shouldBeAdmin = req.headers.newadmin === "true";
-    
+
     if(shouldBeAdmin) {
         const token = req.headers.token;
         const username = req.headers.username;
@@ -226,12 +236,14 @@ app.post('/summarize', async (req, res) => {
             return;
         }
     }
-
+    let id = await saveContent(username, code, completions);
     console.log(completions)
+    completions.push({id: id})
     res.send(completions);
     res.end();
+    
     console.log("Provided " + models.length.toString() +  " completions for user: ", username);
-    await saveContent(username, code, completions);
+    
     } catch (err) {
         console.log("Error in /summarize: ", err);
         res.status(500).send("Internal server error");
@@ -258,6 +270,43 @@ app.get('/getSummarizations', async (req, res) => {
     console.log("Provided content for user: ", username);
     } catch (err) {
         console.log("Error in /getSummarizations: ", err);
+        res.status(500).send("Internal server error");
+        res.end();
+    }
+});
+
+// Allows you to upload a code/summarization/rating pair to the database. 
+// The body should contain the code, completions, and ratings in the following format:
+// {
+//     code: "your code here",
+//     completions: [
+//         {model: "model name", text: "completion text"},
+//         {model: "model name", text: "completion text"},
+//         ...
+//     ],
+//     ratings: [
+//         {naturalRating: 0, usefulRating: 0, consistentRating: 0},
+//         {naturalRating: 0, usefulRating: 0, consistentRating: 0},
+//         ...
+//     ]
+// }
+app.post('/uploadSummarization', async (req, res) => {
+    try {
+    const username = req.headers.username;
+    const token = req.headers.token;
+    if(!checkSession(username, token)) {
+        res.status(401).send("Invalid session token.");
+        return;
+    }
+    const code = req.body.code;
+    const completions = req.body.completions;
+    const ratings = req.body.ratings;
+    let id = await saveContent(username, code, completions, ratings);
+    res.send("Content uploaded successfully with ID: " + id);
+    res.end();
+    console.log("Uploaded content for user: ", username);
+    } catch (err) {
+        console.log("Error in /uploadSummarization: ", err);
         res.status(500).send("Internal server error");
         res.end();
     }
