@@ -1,6 +1,5 @@
 <script>
   import { FileDropzone } from '@skeletonlabs/skeleton';
-
   let file;
 
   let uploadedFile = false;

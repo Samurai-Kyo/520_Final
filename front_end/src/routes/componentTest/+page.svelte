@@ -1,9 +1,5 @@
 <script>
-  import CodeSummComponent from "$lib/components/CodeSummComponent.svelte";
+	import CodeSummaryComponent from '$lib/components/CodeSummaryComponent.svelte';
 </script>
 
-
-
-<CodeSummComponent />
-
-
+<CodeSummaryComponent />
