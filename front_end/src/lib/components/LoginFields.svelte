@@ -9,6 +9,7 @@
 		<!-- form html -->
 		<form method="post">
       	{#if form?.missing}<p class="text-error-500">Missing Username or Password!</p>{/if}
+      	{#if form?.noAccount}<p class="text-error-500">Account Not Found!</p>{/if}
       	{#if form?.taken}<p class="text-warning-500">Username is Taken!</p>{/if}
       	{#if form?.success}<p class="text-success-500">Successfully registered!</p>{/if}
 			<label class="label">

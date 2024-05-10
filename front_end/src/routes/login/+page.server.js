@@ -13,6 +13,9 @@ export const actions = {
 
 		// @ts-ignore
 		const response = await login(username, password);
+		if (response.token == 0) {
+			return fail(400, { noAccount: true });
+		}
 		// @ts-ignore
 		cookies.set('username', username, { path: '/home' });
 		// @ts-ignore

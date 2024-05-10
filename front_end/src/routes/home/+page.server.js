@@ -1,6 +1,15 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { summarizeCode } from '../api/summarizer';
 import { Store, Summaries } from './SummaryStore';
+import { checkAdmin } from '../api/admin';
+
+
+export async function load({cookies}) {
+  const username = cookies.get('username');
+  const token = cookies.get('token');
+  let isAdmin = await checkAdmin(username,token)
+  return {isAdmin:isAdmin};
+}
 
 export const actions = {
 	summarize: async ({ cookies, request }) => {
@@ -27,13 +36,3 @@ export const actions = {
 		return true;
 	}
 };
-
-export function load({ cookies }) {
-	if (!cookies.get('username')) {
-		throw redirect(307, '/login');
-	}
-	const isAdmin = cookies.get('isAdmin') || "";
-	const username = cookies.get('username') || "";
-	const token = cookies.get('token') || "";
-	return { isAdmin, username, token };
-}

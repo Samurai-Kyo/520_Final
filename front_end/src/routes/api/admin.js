@@ -53,3 +53,28 @@ export async function createUser(username, token, newUsername, newPassword) {
 		return false;
 	}
 }
+
+
+export async function checkAdmin(username,token){
+	try {
+		const response = await fetch(`http://localhost:3000/checkAdmin`, {
+			method: 'GET',
+			headers: {
+				username: username,
+				token: token
+			}
+		});
+    const data = await response.json();
+    console.log("HIT")
+    console.log(data);
+		if (data.isAdmin) {
+			return true;
+		} else {
+			return false;
+		}
+	} catch (error) {
+		console.log(error);
+		return false;
+	}
+
+}

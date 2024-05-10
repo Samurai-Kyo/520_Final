@@ -149,7 +149,7 @@ app.get('/login', async (req, res) => {
     }
     const token = new SessionToken(username, results[0].isAdmin === 1);
     sessions.push(token);
-    res.send({token:token.token});
+    res.send({token:token.token, });
     res.end();
     console.log("User logged in: ", username);
     }
@@ -417,6 +417,19 @@ app.get('/stats', async (req, res) => {
         console.log("Error in /stats: ", err);
         res.status(500).send("Internal server error");
         res.end();
+    }
+});
+app.get('/checkAdmin', async (req, res) => {
+    try {
+    const username = req.headers.username;
+    const token = req.headers.token;
+    console.log("Admin Checked");
+    res.send({isAdmin: checkSession(username,token,true)});
+    res.end();
+    }
+    catch (err) {
+        console.log("Error in /checkAdmin: ", err);
+        res.status(500).send("Internal server error");
     }
 });
 

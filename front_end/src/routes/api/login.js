@@ -14,7 +14,7 @@ export async function login(username, password) {
 		});
 		if (response.ok) {
 			const data = await response.json()
-				return {isAdmin: true, token: data.token}
+				return {isAdmin:true, token: data.token}
 		} else {
 			console.log('Login failed');
 			return {isAdmin: false, token: 0};
