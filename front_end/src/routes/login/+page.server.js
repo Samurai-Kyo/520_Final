@@ -8,7 +8,7 @@ export const actions = {
 		const username = data.get('Username');
 		const password = data.get('Password');
 		if (!username || !password) {
-			return fail(400, { error: 'Username and password are required' });
+			return fail(400, { missing: true });
 		}
 
 		// @ts-ignore
@@ -26,12 +26,15 @@ export const actions = {
 		const data = await request.formData();
 		const username = data.get('Username');
 		const password = data.get('Password');
+		if (!username || !password) {
+			return fail(400, { missing: true });
+		}
 		// @ts-ignore
-		const response = await register(username, password);
+		const response = await register(username, password,0);
 		if (response) {
-			alert('User Registered');
+      return {success:true}
 		} else {
-			alert('Registration failed');
+      return fail(400,{taken:true})
 		}
 	}
 };

@@ -28,17 +28,21 @@ export async function login(username, password) {
 /**
  * @param {string} username
  * @param {string} password
+*  @param {number} token
  */
-export async function register(username, password) {
+export async function register(username, password,token) {
 	
 	try {
 		const response = await fetch('http://localhost:3000/createAccount/', {
 			method: 'GET',
 			headers: {
 				newusername: username,
-				newpassword: password
+				newpassword: password,
+        token: token.toString(),
+        newadmin: 'false'
 			}
 		});
+    console.log(response)
 		if (response.ok) {
 			return true;
 		} else {

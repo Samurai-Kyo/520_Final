@@ -1,5 +1,6 @@
 <script>
 	import LoginFields from '$lib/components/LoginFields.svelte';
+  export let form;
 </script>
 
-<LoginFields />
+<LoginFields form={form}/>

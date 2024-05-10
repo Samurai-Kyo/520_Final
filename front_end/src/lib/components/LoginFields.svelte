@@ -1,26 +1,5 @@
-<script>
- let username = ""; 
- let password = "";
-
-
- async function onLogIn(){
-  //  alert("Username: " + username + " Password: " + password)
-  const response = await fetch('http://localhost:3000/login', {
-    method: 'GET',
-    headers: {
-      'password': password,
-      'username': username,
-      'mode': 'cors'
-    },
-  });
-  if(response.status === 200){
-    const data = await response.text();
-    alert(data);
-  }
-  else{
-    alert("Invalid Username or Password");
-  }
- }
+<script >
+  export let form;
 </script>
 
 <!-- create flex div -->
@@ -29,9 +8,12 @@
 	<div class="card w-1/2 space-y-4 p-4">
 		<!-- form html -->
 		<form method="post">
+      	{#if form?.missing}<p class="text-error-500">Missing Username or Password!</p>{/if}
+      	{#if form?.taken}<p class="text-warning-500">Username is Taken!</p>{/if}
+      	{#if form?.success}<p class="text-success-500">Successfully registered!</p>{/if}
 			<label class="label">
 				<span>Username</span>
-				<input class="input p-2" name='Username'>
+				<input class="input p-2" name='Username' value={form?.username ?? ''}>
 			</label>
 			<label class="label">
 				<span>Password</span>
