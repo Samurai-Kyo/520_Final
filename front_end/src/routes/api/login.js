@@ -5,7 +5,7 @@
  */
 export async function login(username, password) {
 	try {
-		const response = await fetch(`http://localhost:3000/login/`, {
+		const response = await fetch(`http://localhost:3000/login`, {
 			method: 'GET',
 			headers: {
 				username: username,
@@ -13,8 +13,8 @@ export async function login(username, password) {
 			}
 		});
 		if (response.ok) {
-			const data = await response.json();
-				return {isAdmin: data.isAdmin, token: data.token}
+			const data = await response.json()
+				return {isAdmin:true, token: data.token}
 		} else {
 			console.log('Login failed');
 			return {isAdmin: false, token: 0};
@@ -28,17 +28,21 @@ export async function login(username, password) {
 /**
  * @param {string} username
  * @param {string} password
+*  @param {string} token
  */
-export async function register(username, password) {
+export async function register(username, password,token) {
 	
 	try {
 		const response = await fetch('http://localhost:3000/createAccount/', {
 			method: 'GET',
 			headers: {
 				newusername: username,
-				newpassword: password
+				newpassword: password,
+        token: token.toString(),
+        newadmin: 'false'
 			}
 		});
+    console.log(response)
 		if (response.ok) {
 			return true;
 		} else {

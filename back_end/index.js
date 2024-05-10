@@ -149,7 +149,7 @@ app.get('/login', async (req, res) => {
     }
     const token = new SessionToken(username, results[0].isAdmin === 1);
     sessions.push(token);
-    res.send(token.token);
+    res.send({token:token.token, });
     res.end();
     console.log("User logged in: ", username);
     }
@@ -168,21 +168,14 @@ app.get('/createAccount', async (req, res) => {
     const newUsername = req.headers.newusername;
     const newPassword = req.headers.newpassword;
     const shouldBeAdmin = req.headers.newadmin === "true";
+    const token = req.headers.token;
 
     if(shouldBeAdmin) {
-        const token = req.headers.token;
-        const username = req.headers.username;
         if(!checkSession(username, token, true)) {
             res.status(401).send("Invalid session token, or lacking privileges.");
             res.end();
             return;
         }
-    }
-
-    if(!checkSession(username, token, true)) {
-        res.status(401).send("Invalid session token, or lacking privileges.");
-        res.end();
-        return;
     }
     const query = 'SELECT * FROM credentials WHERE username = ?';
     const [results] = await pool.query(query, [newUsername]);
@@ -197,7 +190,7 @@ app.get('/createAccount', async (req, res) => {
     await pool.query(query2, [newUsername, hashedPassword, shouldBeAdmin ? 1 : 0]);
     res.send("Account created successfully.");
     res.end();
-    console.log("Account created: ", username);
+    console.log("Account created: ", newUsername);
     }
     catch (err) {
         console.log("Error in /createAccount: ", err);
@@ -427,5 +420,61 @@ app.get('/stats', async (req, res) => {
     }
 });
 
+app.get('/checkAdmin', async (req, res) => {
+    try {
+    const username = req.headers.username;
+    const token = req.headers.token;
+    console.log("Admin Checked");
+    res.send({isAdmin: checkSession(username,token,true)});
+    res.end();
+    }
+    catch (err) {
+        console.log("Error in /checkAdmin: ", err);
+        res.status(500).send("Internal server error");
+    }
+});
+
+app.get('/getUsers', async (req, res) => {
+    try {
+    const username =req.headers.username;
+    const token = req.headers.token;
+    const query = 'SELECT * FROM credentials';
+    const [results] = await pool.query(query, [username]);
+    const userList = [];
+    results.forEach(account => userList.push(account.username));
+    isAdmin = checkSession(username,token,true);
+    if(!isAdmin){
+      res.status(400).send("Not Admin")
+    }
+    res.send({userList:userList});
+    res.end();
+    }
+    catch (err) {
+        console.log("Error in /login: ", err);
+        res.status(500).send("Internal server error");
+    }
+});
+
+
+
+app.post('/makeAdmin', async (req, res) => {
+    try {
+    const username = req.headers.username;
+    const token = req.headers.token;
+    const adminName = req.headers.adminname;
+    if(!checkSession(username,token,true)){
+      res.status(400).send("User Not Admin");
+    }
+    const query2 = "UPDATE credentials SET isAdmin = 1 WHERE username = ?"
+    await pool.query(query2,[adminName])
+    res.send("Admin Updated Successfully");
+    res.end();
+    console.log("Admin Updated")
+    }
+    catch (err) {
+        console.log("Error in /login: ", err);
+        res.status(500).send("Internal server error");
+    }
+});
 serverSetup().then(() => {  
 });
