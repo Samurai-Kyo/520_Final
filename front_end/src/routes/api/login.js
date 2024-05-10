@@ -28,7 +28,7 @@ export async function login(username, password) {
 /**
  * @param {string} username
  * @param {string} password
-*  @param {number} token
+*  @param {string} token
  */
 export async function register(username, password,token) {
 	
