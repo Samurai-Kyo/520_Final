@@ -5,7 +5,7 @@
  */
 export async function login(username, password) {
 	try {
-		const response = await fetch(`http://localhost:3000/login/`, {
+		const response = await fetch(`http://localhost:3000/login`, {
 			method: 'GET',
 			headers: {
 				username: username,
@@ -13,8 +13,8 @@ export async function login(username, password) {
 			}
 		});
 		if (response.ok) {
-			const data = await response.json();
-				return {isAdmin: data.isAdmin, token: data.token}
+			const data = await response.json()
+				return {isAdmin: true, token: data.token}
 		} else {
 			console.log('Login failed');
 			return {isAdmin: false, token: 0};

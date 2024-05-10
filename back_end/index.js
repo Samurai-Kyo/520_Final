@@ -149,7 +149,7 @@ app.get('/login', async (req, res) => {
     }
     const token = new SessionToken(username, results[0].isAdmin === 1);
     sessions.push(token);
-    res.send(token.token);
+    res.send({token:token.token});
     res.end();
     console.log("User logged in: ", username);
     }
