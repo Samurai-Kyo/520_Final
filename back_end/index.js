@@ -168,7 +168,7 @@ app.get('/createAccount', async (req, res) => {
     const newUsername = req.headers.newusername;
     const newPassword = req.headers.newpassword;
     const shouldBeAdmin = req.headers.newadmin === "true";
-    const token = Number(req.headers.token);
+    const token = req.headers.token;
 
     if(shouldBeAdmin) {
         if(!checkSession(username, token, true)) {
