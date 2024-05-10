@@ -18,7 +18,7 @@ export async function summarizeCode(
 				username: username,
 				token: token
 			},
-			body: JSON.stringify([{ code: code, models: models }])
+			body: JSON.stringify([{ code: code, models: models.join(",") }])
 		});
 		if (response.ok) {
 			const data = await response.json();

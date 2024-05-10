@@ -30,12 +30,13 @@ export async function login(username, password) {
  * @param {string} password
  */
 export async function register(username, password) {
+	
 	try {
-		const response = await fetch('http://localhost:3000/register/', {
-			method: 'POST',
-			body: JSON.stringify({ username, password }),
+		const response = await fetch('http://localhost:3000/createAccount/', {
+			method: 'GET',
 			headers: {
-				'content-type': 'application/json'
+				newusername: username,
+				newpassword: password
 			}
 		});
 		if (response.ok) {
@@ -49,27 +50,27 @@ export async function register(username, password) {
 	}
 }
 
-/**
- * @param {string} username
- * @param {string} password
- * @param {string} newPassword
- */
-export async function changePassword(username, password, newPassword) {
-	try {
-		const response = await fetch('http://localhost:3000/changePassword/', {
-			method: 'PUT',
-			body: JSON.stringify({ username, password, newPassword }),
-			headers: {
-				'content-type': 'application/json'
-			}
-		});
-		if (response.ok) {
-			return true;
-		} else {
-			return false;
-		}
-	} catch (error) {
-		console.log(error);
-		return false;
-	}
-}
+// /**
+//  * @param {string} username
+//  * @param {string} password
+//  * @param {string} newPassword
+//  */
+// export async function changePassword(username, password, newPassword) {
+// 	try {
+// 		const response = await fetch('http://localhost:3000/changePassword/', {
+// 			method: 'PUT',
+// 			body: JSON.stringify({ username, password, newPassword }),
+// 			headers: {
+// 				'content-type': 'application/json'
+// 			}
+// 		});
+// 		if (response.ok) {
+// 			return true;
+// 		} else {
+// 			return false;
+// 		}
+// 	} catch (error) {
+// 		console.log(error);
+// 		return false;
+// 	}
+// }
