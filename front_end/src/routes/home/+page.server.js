@@ -1,14 +1,16 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { summarizeCode } from '../api/summarizer';
 import { Store, Summaries } from './SummaryStore';
-import { checkAdmin } from '../api/admin';
+import { checkAdmin,getUsers } from '../api/admin';
+import { register } from '../api/login';
 
 
 export async function load({cookies}) {
   const username = cookies.get('username');
   const token = cookies.get('token');
-  let isAdmin = await checkAdmin(username,token)
-  return {isAdmin:isAdmin};
+  const isAdmin = await checkAdmin(username,token)
+  const userList = await getUsers(username,token);
+  return {isAdmin:isAdmin, username:username, token:token,userList:userList.userList};
 }
 
 export const actions = {
@@ -34,5 +36,20 @@ export const actions = {
 		});
 		Store.set(newSummaries);
 		return true;
+	},
+	register: async ({ cookies, request }) => {
+		const data = await request.formData();
+		const username = data.get('Username');
+		const password = data.get('Password');
+		if (!username || !password) {
+			return fail(400, { missing: true });
+		}
+		// @ts-ignore
+		const response = await register(username, password,0);
+		if (response) {
+      return {success:true}
+		} else {
+      return fail(400,{taken:true})
+		}
 	}
 };

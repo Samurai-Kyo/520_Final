@@ -1,5 +1,6 @@
 <script>
 	export let data;
+  export let form;
 	import { TabGroup, Tab, TabAnchor } from '@skeletonlabs/skeleton';
 	import CodeSummaryComponent from '$lib/components/CodeSummaryComponent.svelte';
 	import FileUploadComponent from '$lib/components/FileUploadComponent.svelte';
@@ -22,7 +23,7 @@
 		{:else if currentTab === 1}
 			<FileUploadComponent />
 		{:else if currentTab === 2}
-			<AdminComponent data={data}/>
+			<AdminComponent data={data} form={form}/>
 		{/if}
 	</svelte:fragment>
 </TabGroup>

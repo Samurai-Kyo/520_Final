@@ -5,13 +5,18 @@
 
 
 	/**
-	 * @type {{ isAdmin: string ; username: string; token: string , userList:Array<string>}}
+	 * @type {{ isAdmin: string ; username: string; token: string }}
 	 */
 	export let data;
   export let form;
 
+  function getUserList(username,token){
+    return await getUsers(username,token)
+  }
 
 
+
+  $:userList = getUserList(data.username,data.token);
 
 	/**
 	 * @param {string} newAdminName
@@ -43,12 +48,12 @@
 	<AccordionItem>
 		<svelte:fragment slot="summary">User List</svelte:fragment>
 		<svelte:fragment slot="content">
-			{#each data.userList as user}
+			{#each userList as user}
 				<Accordion>
 					<AccordionItem>
-						<svelte:fragment slot="summary" >{user}</svelte:fragment>
+						<svelte:fragment slot="summary" >{user.username}</svelte:fragment>
 						<svelte:fragment slot="content"
-							><button class="variant-filled btn" on:click={() => setAdmin(user)}
+							><button class="variant-filled btn" on:click={() => setAdmin(user.username)}
 								>Make Admin?</button
 							></svelte:fragment
 						>

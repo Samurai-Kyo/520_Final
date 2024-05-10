@@ -1,16 +1,16 @@
 /**
  * @param {string} username
  * @param {string} token
- * @param {string} newAdminName
+ * @param {string} adminName
  */
-export async function makeAdmin(username, token, newAdminName) {
+export async function makeAdmin(username, token, adminName) {
 	try {
-		const response = await fetch(`http://localhost:3000/makeAdmin/`, {
+		const response = await fetch(`http://localhost:3000/makeAdmin`, {
 			method: 'POST',
 			headers: {
 				username: username,
 				token: token,
-				newAdminName: newAdminName
+				adminName: adminName
 			}
 		});
 		if (response.ok) {
@@ -65,13 +65,31 @@ export async function checkAdmin(username,token){
 			}
 		});
     const data = await response.json();
-    console.log("HIT")
-    console.log(data);
 		if (data.isAdmin) {
 			return true;
 		} else {
 			return false;
 		}
+	} catch (error) {
+		console.log(error);
+		return false;
+	}
+
+}
+
+
+export async function getUsers(username,token){
+	try {
+		const response = await fetch(`http://localhost:3000/getUsers`, {
+			method: 'GET',
+			headers: {
+				username: username,
+				token: token
+			}
+		});
+    const data = await response.json();
+    console.log(data);
+    return data
 	} catch (error) {
 		console.log(error);
 		return false;

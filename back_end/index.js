@@ -419,6 +419,7 @@ app.get('/stats', async (req, res) => {
         res.end();
     }
 });
+
 app.get('/checkAdmin', async (req, res) => {
     try {
     const username = req.headers.username;
@@ -433,5 +434,47 @@ app.get('/checkAdmin', async (req, res) => {
     }
 });
 
+app.get('/getUsers', async (req, res) => {
+    try {
+    const username =req.headers.username;
+    const token = req.headers.token;
+    const query = 'SELECT * FROM credentials';
+    const [results] = await pool.query(query, [username]);
+    const userList = [];
+    results.forEach(account => userList.push(account.username));
+    isAdmin = checkSession(username,token,true);
+    if(!isAdmin){
+      res.status(400).send("Not Admin")
+    }
+    res.send({userList:userList});
+    res.end();
+    }
+    catch (err) {
+        console.log("Error in /login: ", err);
+        res.status(500).send("Internal server error");
+    }
+});
+
+
+
+app.post('/makeAdmin', async (req, res) => {
+    try {
+    const username = req.headers.username;
+    const token = req.headers.token;
+    const adminName = req.headers.adminname;
+    if(!checkSession(username,token,true)){
+      res.status(400).send("User Not Admin");
+    }
+    const query2 = "UPDATE credentials SET isAdmin = 1 WHERE username = ?"
+    await pool.query(query2,[adminName])
+    res.send("Admin Updated Successfully");
+    res.end();
+    console.log("Admin Updated")
+    }
+    catch (err) {
+        console.log("Error in /login: ", err);
+        res.status(500).send("Internal server error");
+    }
+});
 serverSetup().then(() => {  
 });
