@@ -174,7 +174,7 @@ app.get('/createAccount', async (req, res) => {
 
     if(shouldBeAdmin) {
         if(!checkSession(username, token, true)) {
-            res.status(401).send("Invalid session token, or lacking privileges.");
+            res.status(403).send("Invalid session token, or lacking privileges.");
             res.end();
             return;
         }
@@ -381,12 +381,15 @@ app.post('/setRating', async (req, res) => {
     }
 });
 
+// Provides information about the summarizations in the database. 
+// The headers should contain the username and token of the user making the request.
+// The response will be a JSON object containing the following fields: totalSummarizations, averageNaturalRating, averageUsefulRating, averageConsistentRating.
 app.get('/stats', async (req, res) => {
     try {
     const username = req.headers.username;
     const token = req.headers.token;
     if(!checkSession(username, token, true)) {
-        res.status(401).send("Invalid session token.");
+        res.status(403).send("Invalid session token or not admin.");
         return;
     }
     const query = 'SELECT * FROM summarizations';
@@ -422,6 +425,9 @@ app.get('/stats', async (req, res) => {
     }
 });
 
+// checkAdmin endpoint allows you to provide a session token and check if the user associated with that token is an admin.
+// The headers should contain the username and token of the user making the request.
+// The response will be a JSON object containing the field isAdmin, which will be true if the user is an admin, and false otherwise.
 app.get('/checkAdmin', async (req, res) => {
     try {
     const username = req.headers.username;
@@ -436,18 +442,19 @@ app.get('/checkAdmin', async (req, res) => {
     }
 });
 
+// getUsers endpoint allows an admin to get a list of all the users in the database.
 app.get('/getUsers', async (req, res) => {
     try {
     const username =req.headers.username;
     const token = req.headers.token;
+    if(!checkSession(username, token, true)) {
+        res.status(403).send("Invalid session token: User not admin");
+        return;
+    }
     const query = 'SELECT * FROM credentials';
     const [results] = await pool.query(query, [username]);
     const userList = [];
     results.forEach(account => userList.push(account.username));
-    isAdmin = checkSession(username,token,true);
-    if(!isAdmin){
-      res.status(400).send("Not Admin")
-    }
     res.send({userList:userList});
     res.end();
     }
@@ -465,7 +472,7 @@ app.post('/makeAdmin', async (req, res) => {
     const token = req.headers.token;
     const adminName = req.headers.adminname;
     if(!checkSession(username,token,true)){
-      res.status(400).send("User Not Admin");
+      res.status(403).send("User Not Admin");
     }
     const query2 = "UPDATE credentials SET isAdmin = 1 WHERE username = ?"
     await pool.query(query2,[adminName])
@@ -485,7 +492,7 @@ app.get('/deleteUser', async (req, res) => {
     const token = req.headers.token;
     const toDelete= req.headers.todelete;
     if(!checkSession(username,token,true)){
-      res.status(400).send("User Not Admin");
+      res.status(403).send("User Not Admin");
     }
     const query2 = "DELETE FROM credentials WHERE username = ?"
     await pool.query(query2,[toDelete])
@@ -498,20 +505,31 @@ app.get('/deleteUser', async (req, res) => {
         res.status(500).send("Internal server error");
     }
 });
+
+// changePassword endpoint allows for a user or admin to change passwords. 
+// The headers should contain the username, token, newpassword, and newusername.
+// If the user is an admin, they can change the password of any user.
+// If the user is not an admin, they can only change their own password.
 app.get('/changePassword', async (req, res) => {
     try {
     const username = req.headers.username;
     const token = req.headers.token;
     const newPassword = req.headers.newpassword;
     const newUsername = req.headers.newusername;
-    // if(!checkSession(username,token,true)){
-    //   res.status(400).send("User Not Admin");
-    // }
-    console.log(newPassword);
+    if(username !== newUsername){
+        if(!checkSession(username,token,true)){
+            res.status(403).send("User Not Admin");
+        }
+    }
+    else {
+        if(!checkSession(username,token, false)){
+            res.status(403).send("User isn't admin and can't change password of another user");
+        }
+    }
     const hashedPassword = crypto.createHash('sha256').update(newPassword).digest('base64');
     const query2 = "UPDATE credentials SET password = ? WHERE username = ?"
     await pool.query(query2, [hashedPassword,newUsername]);
-    res.send("Password Changed");
+    res.send("Password Changed for user: " + newUsername);
     res.end();
     console.log("password changed")
     }
@@ -520,5 +538,6 @@ app.get('/changePassword', async (req, res) => {
         res.status(500).send("Internal server error");
     }
 });
+
 serverSetup().then(() => {  
 });
