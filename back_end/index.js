@@ -221,6 +221,7 @@ app.post('/summarize', async (req, res) => {
         res.status(401).send("Invalid session token.");
         return;
     }
+    console.log("models: " + req.body.models)
     const code = req.body.code;
     const models = req.body.models.split(",");
     console.log(models)
@@ -247,6 +248,7 @@ app.post('/summarize', async (req, res) => {
             completions.push({model: chatModel, text: thisSummarization.content[0].text});
         }
         else {
+            console.log("Invalid model name: ", chatModel);
             res.status(400).send("Invalid model name: " + chatModel);
             return;
         }

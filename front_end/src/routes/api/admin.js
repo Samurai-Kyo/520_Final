@@ -54,8 +54,11 @@ export async function createUser(username, token, newUsername, newPassword) {
 	}
 }
 
-
-export async function checkAdmin(username,token){
+/**
+ * @param {string} username
+ * @param {string} token
+ * */
+export async function checkAdmin(username, token) {
 	try {
 		const response = await fetch(`http://localhost:3000/checkAdmin`, {
 			method: 'GET',
@@ -64,7 +67,7 @@ export async function checkAdmin(username,token){
 				token: token
 			}
 		});
-    const data = await response.json();
+		const data = await response.json();
 		if (data.isAdmin) {
 			return true;
 		} else {
@@ -74,11 +77,13 @@ export async function checkAdmin(username,token){
 		console.log(error);
 		return false;
 	}
-
 }
 
-
-export async function getUsers(username,token){
+/**
+ * @param {string} username
+ * @param {string} token
+ * */
+export async function getUsers(username, token) {
 	try {
 		const response = await fetch(`http://localhost:3000/getUsers`, {
 			method: 'GET',
@@ -87,59 +92,71 @@ export async function getUsers(username,token){
 				token: token
 			}
 		});
-    const data = await response.json();
-    console.log(data);
-    return data
+		if (!response.ok) {
+			console.log('Error - getUsers:' + response.statusText);
+			return false;
+		}
+		const data = await response.json();
+		// console.log(data);
+		return data;
 	} catch (error) {
 		console.log(error);
 		return false;
 	}
-
 }
 
-
-export async function deleteUser(username,token,toDelete){
+/**
+ * @param {string} username
+ * @param {string} token
+ * @param {string} toDelete
+ * */
+export async function deleteUser(username, token, toDelete) {
 	try {
 		const response = await fetch(`http://localhost:3000/deleteUser`, {
 			method: 'GET',
 			headers: {
 				username: username,
 				token: token,
-        toDelete:toDelete
+				toDelete: toDelete
 			}
 		});
-    if(response.ok){
-      return true;
-    }else{
-		console.log("error");
-		return false;
-    }
+		if (response.ok) {
+			return true;
+		} else {
+			console.log('error');
+			return false;
+		}
 	} catch (error) {
 		console.log(error);
 		return false;
 	}
-
 }
-export async function changePassword(username,token,newPassword,newUsername){
+
+/**
+ * @param {string} username
+ * @param {string} token
+ * @param {string} newPassword
+ * @param {string} newUsername
+ * */
+export async function changePassword(username, token, newPassword, newUsername) {
 	try {
 		const response = await fetch(`http://localhost:3000/changePassword`, {
 			method: 'GET',
 			headers: {
 				username: username,
 				token: token,
-        newPassword:newPassword,
-        newUsername:newUsername
+				newPassword: newPassword,
+				newUsername: newUsername
 			}
 		});
-    if(response.ok){
-      return true;
-    }else{
-		console.log("error");
-		return false;
-    }
+		if (response.ok) {
+			return true;
+		} else {
+			console.log('error');
+			return false;
+		}
 	} catch (error) {
 		console.log(error);
 		return false;
 	}
-
 }

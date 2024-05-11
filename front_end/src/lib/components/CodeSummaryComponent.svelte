@@ -3,9 +3,16 @@
 	import { Ratings } from '@skeletonlabs/skeleton';
 	import { Store, Summary } from '../../routes/home/SummaryStore';
 	import { enhance } from '$app/forms';
+	import { summarizeCode } from '../../routes/api/summarizer.js';
+	import { Summaries } from '../../routes/home/SummaryStore';
+
+	/**
+	 * @type {{ isAdmin: string ; username: string; token: string , userList:Array<string>}}
+	 */
+	export let data;
 
 	//language dropdown
-	let selectedLanguage = 'javascript';
+	let codeLanguage = 'javascript';
 
 	// code input
 	let code = '';
@@ -20,8 +27,40 @@
 	Store.subscribe((_summaries) => {
 		listOfSummarizedCode = _summaries.getSummaries();
 		console.log('Store updated');
-		console.log(listOfSummarizedCode);
+		console.log(JSON.stringify(listOfSummarizedCode));
 	});
+
+	/**
+	 * @returns {Promise<void>}
+	 */
+	async function summarize() {
+		console.log('Summarize');
+		try {
+			if (!code || !codeLanguage) {
+				alert('Please enter code and select a language');
+				return;
+			}
+
+			const username = data.username;
+			const token = data.token;
+			// @ts-ignore
+			const summaries = await summarizeCode(username, token, code, codeLanguage);
+			if (!summaries) {
+				alert('Failed to summarize code.');
+				return;
+			}
+			// Replace old summaries
+			let newSummaries = new Summaries();
+			summaries.forEach((summary) => {
+				newSummaries.addSummary(summary);
+			});
+			Store.set(newSummaries);
+			return;
+		} catch (e) {
+			alert(e);
+			return;
+		}
+	}
 
 	/**
 	 * @param {any} nScore
@@ -38,10 +77,10 @@
 <div class="flex-col justify-center p-4">
 	<!-- input box area -->
 	<div class="card w-full space-y-4 p-4">
-		<form method="post">
+		<form>
 			<textarea class="textarea p-4" placeholder="Paste Code Here" name="code" bind:value={code} />
 			<div class="flex justify-evenly">
-				<select class="select w-1/4 p-1" name="codeLanguage" bind:value={selectedLanguage}>
+				<select class="select w-1/4 p-1" name="codeLanguage" bind:value={codeLanguage}>
 					<option value={'Javascript'}> Javascript </option>
 					<option value={'Typescript'}> Typescript </option>
 					<option value={'Java'}> Java</option>
@@ -51,7 +90,7 @@
 					<option value={'Swift'}> Swift</option>
 					<option value={'Ruby'}> Ruby</option>
 				</select>
-				<button formaction="?/summarize" type="submit" class="variant-filled-secondary btn"
+				<button type="submit" class="variant-filled-secondary btn" on:click={() => summarize()}
 					>Submit</button
 				>
 			</div>

@@ -2,23 +2,26 @@
  * @param {string} username
  * @param {string} token
  * @param {string} code
- * @param {Array<string>} models
+ * @param {string} codingLanguage
+ * @param {string} models
  * @returns {Promise<[{summary: string, model: string}]>}
  */
 export async function summarizeCode(
 	username,
 	token,
 	code,
-	models = ['gpt-4-turbo', 'gpt-3.5-turbo', 'claude-3-opus-20240229', 'claude-3-haiku-20240307']
+	codingLanguage,
+	models = 'gpt-4-turbo,gpt-3.5-turbo,claude-3-opus-20240229,claude-3-haiku-20240307'
 ) {
 	try {
 		const response = await fetch(`http://localhost:3000/summarize/`, {
 			method: 'POST',
 			headers: {
+				'Content-Type': 'application/json',
 				username: username,
 				token: token
 			},
-			body: JSON.stringify([{ code: code, models: models.join(",") }])
+			body: JSON.stringify({ code: code, codingLanguage: codingLanguage, models: models })
 		});
 		if (response.ok) {
 			const data = await response.json();
@@ -29,11 +32,11 @@ export async function summarizeCode(
 			console.log(remappedData);
 			return remappedData;
 		} else {
-			alert('Summary failed');
+			console.log('Summary failed');
 			return [{ summary: '', model: '' }];
 		}
 	} catch (error) {
-		console.log(error);
+		console.log('Summary failed - ' + error);
 		return [{ summary: '', model: '' }];
 	}
 }
