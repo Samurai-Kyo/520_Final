@@ -10,7 +10,8 @@ export async function load({cookies}) {
   const token = cookies.get('token');
   const isAdmin = await checkAdmin(username,token)
   const userList = await getUsers(username,token);
-  return {isAdmin:isAdmin, username:username, token:token,userList:userList.userList};
+  const firstTimeAdmin = cookies.get('firstTimeAdmin')
+  return {isAdmin:isAdmin, username:username, token:token,userList:userList.userList, firstTimeAdmin:firstTimeAdmin};
 }
 
 export const actions = {

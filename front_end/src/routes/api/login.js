@@ -1,7 +1,7 @@
 /**
  * @param {string} username
  * @param {string} password
- * @returns {Promise<{isAdmin: boolean, token: number}>}
+ * @returns {Promise<{isAdmin: boolean, token: number, firstTimeAdmin:boolean}>}
  */
 export async function login(username, password) {
 	try {
@@ -14,14 +14,14 @@ export async function login(username, password) {
 		});
 		if (response.ok) {
 			const data = await response.json()
-				return {isAdmin:true, token: data.token}
+				return {isAdmin:true, token: data.token, firstTimeAdmin: data.firstTimeAdmin}
 		} else {
 			console.log('Login failed');
-			return {isAdmin: false, token: 0};
+				return {isAdmin:false, token: 0, firstTimeAdmin: false}
 		}
 	} catch (error) {
 		console.log(error);
-		return {isAdmin: false, token: 0};
+				return {isAdmin:false, token: 0, firstTimeAdmin: false}
 	}
 }
 

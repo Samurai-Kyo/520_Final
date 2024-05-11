@@ -1,7 +1,12 @@
 <script>
 	import '../app.pcss';
+  import { initializeStores, Modal } from '@skeletonlabs/skeleton';
+  initializeStores();
 </script>
 
+
+
+<Modal />
 <div class="flex justify-center bg-transparent p-2">
 	<h1 class="h1">
 		<span
