@@ -96,3 +96,50 @@ export async function getUsers(username,token){
 	}
 
 }
+
+
+export async function deleteUser(username,token,toDelete){
+	try {
+		const response = await fetch(`http://localhost:3000/deleteUser`, {
+			method: 'GET',
+			headers: {
+				username: username,
+				token: token,
+        toDelete:toDelete
+			}
+		});
+    if(response.ok){
+      return true;
+    }else{
+		console.log("error");
+		return false;
+    }
+	} catch (error) {
+		console.log(error);
+		return false;
+	}
+
+}
+export async function changePassword(username,token,newPassword,newUsername){
+	try {
+		const response = await fetch(`http://localhost:3000/changePassword`, {
+			method: 'GET',
+			headers: {
+				username: username,
+				token: token,
+        newPassword:newPassword,
+        newUsername:newUsername
+			}
+		});
+    if(response.ok){
+      return true;
+    }else{
+		console.log("error");
+		return false;
+    }
+	} catch (error) {
+		console.log(error);
+		return false;
+	}
+
+}

@@ -1,5 +1,14 @@
 <script >
   export let form;
+  import { getModalStore } from '@skeletonlabs/skeleton';const modalStore = getModalStore();
+  const modal = {
+	type: 'alert',
+	// Data
+	title: 'Change Password Request',
+	body: 'Please Contact an Admin to Change Password',
+};
+
+
 </script>
 
 <!-- create flex div -->
@@ -19,7 +28,7 @@
 			<label class="label">
 				<span>Password</span>
 				<input class="input p-2" type="password" name='Password'/>
-				<button type="button" class="btn btn-sm variant-filled-">Forgot Password</button>
+				<button type="button" class="btn btn-sm variant-filled-" on:click={()=>modalStore.trigger(modal)}>Forgot Password</button>
 			</label>
 			<div class="flex justify-around">
 				<button formaction="?/login" type="submit" class="btn variant-filled-primary">Log In</button>

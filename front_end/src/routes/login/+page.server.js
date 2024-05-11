@@ -22,6 +22,8 @@ export const actions = {
 		cookies.set('isAdmin', response.isAdmin, { path: '/home' });
 		// @ts-ignore
 		cookies.set('token', response.token, { path: '/home' });
+		// @ts-ignore
+		cookies.set('firstTimeAdmin', response.firstTimeAdmin, { path: '/home' });
 		throw redirect(303, '/home');
 	},
 	register: async ({ cookies, request }) => {

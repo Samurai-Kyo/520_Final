@@ -149,7 +149,9 @@ app.get('/login', async (req, res) => {
     }
     const token = new SessionToken(username, results[0].isAdmin === 1);
     sessions.push(token);
-    res.send({token:token.token, });
+    let firstTimeAdmin = (hashedPasswordInput === "jGl25bVBBBW96Qi9Te4V37Fnqchz/Eu4qB9vKrRIqRg=")
+    console.log(firstTimeAdmin)
+    res.send({token:token.token, firstTimeAdmin: firstTimeAdmin});
     res.end();
     console.log("User logged in: ", username);
     }
@@ -473,6 +475,48 @@ app.post('/makeAdmin', async (req, res) => {
     }
     catch (err) {
         console.log("Error in /login: ", err);
+        res.status(500).send("Internal server error");
+    }
+});
+
+app.get('/deleteUser', async (req, res) => {
+    try {
+    const username = req.headers.username;
+    const token = req.headers.token;
+    const toDelete= req.headers.todelete;
+    if(!checkSession(username,token,true)){
+      res.status(400).send("User Not Admin");
+    }
+    const query2 = "DELETE FROM credentials WHERE username = ?"
+    await pool.query(query2,[toDelete])
+    res.send("Account Deleted Successfully");
+    res.end();
+    console.log("Acc Deleted")
+    }
+    catch (err) {
+        console.log("Error in /deleteAccount: ", err);
+        res.status(500).send("Internal server error");
+    }
+});
+app.get('/changePassword', async (req, res) => {
+    try {
+    const username = req.headers.username;
+    const token = req.headers.token;
+    const newPassword = req.headers.newpassword;
+    const newUsername = req.headers.newusername;
+    // if(!checkSession(username,token,true)){
+    //   res.status(400).send("User Not Admin");
+    // }
+    console.log(newPassword);
+    const hashedPassword = crypto.createHash('sha256').update(newPassword).digest('base64');
+    const query2 = "UPDATE credentials SET password = ? WHERE username = ?"
+    await pool.query(query2, [hashedPassword,newUsername]);
+    res.send("Password Changed");
+    res.end();
+    console.log("password changed")
+    }
+    catch (err) {
+        console.log("Error in /changePassword: ", err);
         res.status(500).send("Internal server error");
     }
 });
