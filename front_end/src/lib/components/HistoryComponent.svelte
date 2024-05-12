@@ -1,7 +1,5 @@
 <script>
 	import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
-	import { Ratings } from '@skeletonlabs/skeleton';
-	import { Store } from '../../routes/home/HistoryStore';
 	import { fetchHistory } from '../../routes/api/history.js';
 
 	/**

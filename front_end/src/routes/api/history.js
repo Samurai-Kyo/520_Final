@@ -5,7 +5,7 @@
 export async function fetchHistory(username, token) {
 	try {
 		const response = await fetch(`http://localhost:3000/getSummarizations/`, {
-			method: 'Get',
+			method: 'GET',
 			headers: {
 				username: username,
 				token: token

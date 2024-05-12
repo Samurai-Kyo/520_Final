@@ -1,22 +1,31 @@
 <script>
 	import {
 		makeAdmin,
-		// createUser,
-		// getUsers,
 		deleteUser,
+		getAverageScores,
 		changePassword
 	} from '../../routes/api/admin.js';
 	import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
 	import CreateAccountFields from './CreateAccountFields.svelte';
 	import { getModalStore } from '@skeletonlabs/skeleton';
-
 	const modalStore = getModalStore();
+
+	/**
+	 * @type {string[]}
+	 */
+	let userList = [];
 
 	/**
 	 * @type {{ isAdmin: string ; username: string; token: string , userList:Array<string>}}
 	 */
 	export let data;
 	export let form;
+	let summariesCalculated = false;
+	const average = {
+		averageNaturalRating: 0,
+		averageUsefulRating: 0,
+		averageConsistentRating: 0
+	};
 
 	/**
 	 * @param {string} newUsername
@@ -54,7 +63,9 @@
 	 */
 	function delUser(toDelete) {
 		if (toDelete === 'admin') {
-			alert('You cannot delete an admin account. Please contact the server admin if you need to delete an admin account');
+			alert(
+				'You cannot delete an admin account. Please contact the server admin if you need to delete an admin account'
+			);
 			return;
 		} else {
 			deleteUser(data.username, data.token, toDelete);
@@ -62,13 +73,30 @@
 		}
 	}
 
-	// /**
-	//  * @param {string} username
-	//  * @param {string} password
-	//  */
-	// function addUser(username, password) {
-	// 	createUser(data.username, data.token, username, password);
-	// }
+	/**
+	 * @param {string} username
+	 */
+	function toggleIfOnList(username) {
+		if (userList.includes(username)) {
+			userList = userList.filter((value) => !(value === username));
+		} else {
+			userList.push(username);
+		}
+	}
+
+	async function getScoreAverage() {
+		try {
+			const scores = await getAverageScores(data.username, data.token, userList);
+			average.averageNaturalRating = scores.averageNaturalRating;
+			average.averageUsefulRating = scores.averageUsefulRating;
+			average.averageConsistentRating = scores.averageConsistentRating;
+			summariesCalculated = true;
+			return;
+		} catch (e) {
+			alert('Error getting average scores: ' + e);
+			return;
+		}
+	}
 </script>
 
 <div class="flex w-full flex-col p-5" />
@@ -98,6 +126,29 @@
 					</AccordionItem>
 				</Accordion>
 			{/each}
+		</svelte:fragment>
+	</AccordionItem>
+	<AccordionItem>
+		<svelte:fragment slot="summary">Evaluations</svelte:fragment>
+		<svelte:fragment slot="content">
+			{#each data.userList as user}
+				<div>
+					<input type="checkbox" autocomplete="off" on:click={() => toggleIfOnList(user)} />
+					{user};
+				</div>
+			{/each}
+			<button>
+				<button class="variant-filled-secondary btn" on:click={() => getScoreAverage()}
+					>Get Score Average</button
+				>
+			</button>
+			{#if summariesCalculated}
+				<div>
+					<p class="p">{average.averageNaturalRating}</p>
+					<p class="p">{average.averageUsefulRating}</p>
+					<p class="p">{average.averageConsistentRating}</p>
+				</div>
+			{/if}
 		</svelte:fragment>
 	</AccordionItem>
 </Accordion>
