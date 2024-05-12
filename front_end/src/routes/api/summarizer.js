@@ -1,11 +1,13 @@
-import { Summary, Rating } from '../home/SummaryStore';
+// eslint-disable-next-line no-unused-vars
+import { Rating } from '../home/SummaryStore';
 
 /**
  * @param {string} username
  * @param {string} token
  * @param {string} code
  * @param {string} codingLanguage
- * @param {string} models
+ * @param {number} reviewCount
+ * @param {string[]} models
  * @returns {Promise<{summaries:[{summary: string, model: string}], summariesID: number}>}
  */
 export async function summarizeCode(

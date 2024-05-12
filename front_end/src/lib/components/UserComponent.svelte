@@ -14,10 +14,16 @@
 	 */
 	function changePass() {
 		new Promise((resolve) => {
+			/**
+			 * @type {import('@skeletonlabs/skeleton').ModalSettings}
+			 */
 			const passwordModal = {
 				type: 'prompt',
 				title: 'Change Password',
 				body: 'Please Enter New Password Below',
+				/**
+				 * @param {string} newPassword 
+				 **/
 				response: (newPassword) => resolve(newPassword)
 			};
 			modalStore.trigger(passwordModal);
