@@ -42,12 +42,12 @@ class SummarizationContent {
         this.content = [];
         if(ratings === null) {
             completions.forEach((element) => {
-                this.content.push({model: element.model, text: element.text, naturalRating: 0, usefulRating: 0, consistentRating: 0});
+                this.content.push({model: element.model, text: element.text, naturalRating: 0, usefulRating: 0, consistentRating: 0, favorite: false});
             });
         }
         else {
             completions.forEach((element, index) => {
-                this.content.push({model: element.model, text: element.text, naturalRating: ratings[index].naturalRating, usefulRating: ratings[index].usefulRating, consistentRating: ratings[index].consistentRating});
+                this.content.push({model: element.model, text: element.text, naturalRating: ratings[index].naturalRating, usefulRating: ratings[index].usefulRating, consistentRating: ratings[index].consistentRating, favorte: false});
             });
         }
     }
@@ -307,8 +307,8 @@ app.get('/getSummarizations', async (req, res) => {
 //         ...
 //     ],
 //     ratings: [
-//         {naturalRating: 0, usefulRating: 0, consistentRating: 0},
-//         {naturalRating: 0, usefulRating: 0, consistentRating: 0},
+//         {naturalRating: 0, usefulRating: 0, consistentRating: 0, favorite: (true/false)},
+//         {naturalRating: 0, usefulRating: 0, consistentRating: 0, favorite: (true/false)},
 //         ...
 //     ]
 // }
@@ -338,8 +338,8 @@ app.post('/uploadSummarization', async (req, res) => {
 // The body should contain the ratings in the following format:
 // {
 //     ratings: [
-//         {naturalRating: 0, usefulRating: 0, consistentRating: 0},
-//         {naturalRating: 0, usefulRating: 0, consistentRating: 0},
+//         {naturalRating: 0, usefulRating: 0, consistentRating: 0, favorite: (true/false)},
+//         {naturalRating: 0, usefulRating: 0, consistentRating: 0, favorite: (true/false)},
 //         ...
 //     ]
 // }
@@ -371,6 +371,7 @@ app.post('/setRating', async (req, res) => {
         oldContent.content[index].naturalRating = rating.naturalRating;
         oldContent.content[index].usefulRating = rating.usefulRating;
         oldContent.content[index].consistentRating = rating.consistentRating;
+        oldContent.content[index].favorite = rating.favorite;
         index++;
     }
     let contentString = JSON.stringify(oldContent);

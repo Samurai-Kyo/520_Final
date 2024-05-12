@@ -55,7 +55,7 @@ export async function summarizeCode(
  */
 export async function createReview(username, token, id, ratings) {
 	let remappedRatings = ratings.map((rating) => { 
-		return {"naturalRating":rating.nScore, "usefulRating":rating.uScore, "consistentRating":rating.cScore} 
+		return {"naturalRating":rating.nScore, "usefulRating":rating.uScore, "consistentRating":rating.cScore, "favorite":rating.isFavorite}; 
 	});
 	try {
 		const response = await fetch(`http://localhost:3000/setRating/`, {

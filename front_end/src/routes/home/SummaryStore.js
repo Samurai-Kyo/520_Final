@@ -71,10 +71,11 @@ export class Rating {
 	 * @param {number} uScore
 	 * @param {number} cScore
 	 */
-	constructor(nScore, uScore, cScore) {
+	constructor(nScore, uScore, cScore, isFavorite = false) {
 		this.nScore = nScore;
 		this.uScore = uScore;
 		this.cScore = cScore;
+		this.isFavorite = isFavorite;
 	}
 	getScores() {
 		return { nScore: this.nScore, uScore: this.uScore, cScore: this.cScore };

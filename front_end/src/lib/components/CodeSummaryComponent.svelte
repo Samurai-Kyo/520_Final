@@ -115,7 +115,7 @@
 			<Accordion>
 				{#each listOfSummarizedCode as summary }
 					<AccordionItem>
-						<svelte:fragment slot="summary">{summary.apiName}</svelte:fragment>
+						<svelte:fragment slot="summary">{#if summary.rating.isFavorite}<b>{summary.apiName}</b>{/if} {#if !summary.rating.isFavorite}{summary.apiName}{/if}</svelte:fragment>
 						<svelte:fragment slot="content">
 							<div class="flex flex-col items-center">
 								{summary.summary}
@@ -171,6 +171,10 @@
 												class="variant-filled-secondary btn w-1/4"
 												on:click={() => sendReview()}>Send Review</button
 											>
+											<button
+												class="variant-filled-secondary btn w-1/4"
+												on:click={() => summary.rating.isFavorite = !summary.rating.isFavorite}>Toggle Favorite
+											</button>
 										</svelte:fragment>
 									</AccordionItem>
 								</Accordion>
