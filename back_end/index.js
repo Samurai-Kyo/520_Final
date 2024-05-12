@@ -42,12 +42,12 @@ class SummarizationContent {
         this.content = [];
         if(ratings === null) {
             completions.forEach((element) => {
-                this.content.push({model: element.model, text: element.text, naturalRating: 0, usefulRating: 0, consistentRating: 0});
+                this.content.push({model: element.model, text: element.text, naturalRating: 0, usefulRating: 0, consistentRating: 0, favorite: false, userNotes: ""});
             });
         }
         else {
             completions.forEach((element, index) => {
-                this.content.push({model: element.model, text: element.text, naturalRating: ratings[index].naturalRating, usefulRating: ratings[index].usefulRating, consistentRating: ratings[index].consistentRating});
+                this.content.push({model: element.model, text: element.text, naturalRating: ratings[index].naturalRating, usefulRating: ratings[index].usefulRating, consistentRating: ratings[index].consistentRating, favorite: ratings[index].favorite, userNotes: ratings[index].userNotes});
             });
         }
     }
@@ -232,7 +232,7 @@ app.post('/summarize', async (req, res) => {
             console.log("Performing OpenAI completion for model: ", chatModel);
             thisSummarization = await openaiInstance.chat.completions.create({
                 model: chatModel,
-                messages: [{role: 'system', content: sysPrompt + code}],
+                messages: [{role: 'system', content: sysPrompt}],
                 n: 1
             })
             completions.push({model: chatModel, text:thisSummarization.choices[0].message.content})
@@ -272,17 +272,26 @@ app.post('/summarize', async (req, res) => {
 // getSummarizations endpoint allows you to get all the summarizations that a user has uploaded.
 // The headers should contain the username and token of the user making the request.
 // The response will be an array of objects, each containing the ID of the summarization, the code that was summarized, and the completions provided by the models.
-// Completions are of the form: {model: String, text: String, naturalRating: Int(0-10), usefulRating: Int(0-10), consistentRating: Int(0-10)}
+// Completions are of the form: {model: String, text: String, naturalRating: Int(0-10), usefulRating: Int(0-10), consistentRating: Int(0-10), favorite: Boolean, userNotes: String}
 app.get('/getSummarizations', async (req, res) => {
     try {
     const username = req.headers.username;
     const token = req.headers.token;
+    const targetUsername = req.headers.targetusername;
+    if(username !== targetUsername){
+        if(!checkSession(username,token,true)){
+            res.status(403).send("User Not Admin");
+        }
+    }
+    if(targetUsername === "") {
+        targetUsername = username;
+    }
     if(!checkSession(username, token)) {
         res.status(401).send("Invalid session token.");
         return;
     }
     const query = 'SELECT * FROM summarizations WHERE username = ?';
-    const [results] = await pool.query(query, [username]);
+    const [results] = await pool.query(query, [targetUsername]);
     let content = [];
     results.forEach((element) => {
         content.push({id: element.id, code: element.inputCode, completions: JSON.parse(element.content)});
@@ -307,8 +316,8 @@ app.get('/getSummarizations', async (req, res) => {
 //         ...
 //     ],
 //     ratings: [
-//         {naturalRating: 0, usefulRating: 0, consistentRating: 0},
-//         {naturalRating: 0, usefulRating: 0, consistentRating: 0},
+//         {naturalRating: 0, usefulRating: 0, consistentRating: 0, favorite: (true/false), userNotes: "notes here"},
+//         {naturalRating: 0, usefulRating: 0, consistentRating: 0, favorite: (true/false), userNotes: "notes here"},
 //         ...
 //     ]
 // }
@@ -338,8 +347,8 @@ app.post('/uploadSummarization', async (req, res) => {
 // The body should contain the ratings in the following format:
 // {
 //     ratings: [
-//         {naturalRating: 0, usefulRating: 0, consistentRating: 0},
-//         {naturalRating: 0, usefulRating: 0, consistentRating: 0},
+//         {naturalRating: 0, usefulRating: 0, consistentRating: 0, favorite: (true/false), userNotes: "notes here"},
+//         {naturalRating: 0, usefulRating: 0, consistentRating: 0, favorite: (true/false), userNotes: "notes here"},
 //         ...
 //     ]
 // }
@@ -349,7 +358,7 @@ app.post('/setRating', async (req, res) => {
     try {
     const username = req.headers.username;
     const token = req.headers.token;
-    const ratings = req.body.ratings; // Array of ratings in the form: {naturalRating: 0, usefulRating: 0, consistentRating: 0}
+    const ratings = req.body.ratings; // Array of ratings in the form: {naturalRating: 0, usefulRating: 0, consistentRating: 0, favorite: (true/false), userNotes: "notes here"}
     if(!checkSession(username, token)) {
         res.status(401).send("Invalid session token.");
         return;
@@ -371,6 +380,8 @@ app.post('/setRating', async (req, res) => {
         oldContent.content[index].naturalRating = rating.naturalRating;
         oldContent.content[index].usefulRating = rating.usefulRating;
         oldContent.content[index].consistentRating = rating.consistentRating;
+        oldContent.content[index].favorite = rating.favorite;
+        oldContent.content[index].userNotes = rating.userNotes;
         index++;
     }
     let contentString = JSON.stringify(oldContent);

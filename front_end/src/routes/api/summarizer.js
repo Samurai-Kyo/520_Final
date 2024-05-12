@@ -1,4 +1,3 @@
-// eslint-disable-next-line no-unused-vars
 import { Rating } from '../home/SummaryStore';
 
 /**
@@ -6,8 +5,8 @@ import { Rating } from '../home/SummaryStore';
  * @param {string} token
  * @param {string} code
  * @param {string} codingLanguage
- * @param {number} reviewCount
  * @param {string[]} models
+ * @param {number} reviewCount
  * @returns {Promise<{summaries:[{summary: string, model: string}], summariesID: number}>}
  */
 export async function summarizeCode(
@@ -64,7 +63,7 @@ export async function summarizeCode(
  */
 export async function createReview(username, token, id, ratings) {
 	let remappedRatings = ratings.map((rating) => { 
-		return {"naturalRating":rating.nScore, "usefulRating":rating.uScore, "consistentRating":rating.cScore} 
+		return {"naturalRating":rating.nScore, "usefulRating":rating.uScore, "consistentRating":rating.cScore, "favorite":rating.isFavorite, "userNotes":rating.evalText}; 
 	});
 	try {
 		const response = await fetch(`http://localhost:3000/setRating/`, {

@@ -84,15 +84,26 @@
 	}
 </script>
 
+<style>
+	.bg-ourPageLighter {
+		background-color: rgb(59 130 246 / 0.1)
+	}
+	.outline-ourPage {
+		border: 2px solid;
+		border-color: rgb(59 130 246 / 0.1);
+		border-radius: 6px;
+	}
+</style>
+
 <div class="flex-col justify-center p-4">
 	<!-- input box area -->
 	<div class="card w-full space-y-4 p-4">
 		<form>
 			<textarea class="textarea p-4" placeholder="Paste Code Here" name="code" bind:value={code} />
-			<div class="flex justify-evenly">
-				<div class="flex justify-evenly">
-					<label for="review count" class="p">Review Count</label>
-					<select class="select w-1/4 p-1" name="review count" bind:value={reviewCount}>
+			<div class="flex justify-between ml-4 mr-4">
+				<div class="flex justify-start w-1/6">
+					<label for="review count" class="p mr-1">Review Count</label>
+					<select class="select w-1/3 p-1" name="review count" bind:value={reviewCount}>
 						<option value={1}>1</option>
 						<option value={2}>2</option>
 						<option value={3}>3</option>
@@ -106,17 +117,20 @@
 					</select>
 				</div>
 
-				<label for="codeLanguage" class="p">Language</label>
-				<select class="select w-1/4 p-1" name="codeLanguage" bind:value={codeLanguage}>
-					<option value={'Javascript'}> Javascript </option>
-					<option value={'Typescript'}> Typescript </option>
-					<option value={'Java'}> Java</option>
-					<option value={'C#'}> C#</option>
-					<option value={'C++'}> C++</option>
-					<option value={'PHP'}> PHP</option>
-					<option value={'Swift'}> Swift</option>
-					<option value={'Ruby'}> Ruby</option>
-				</select>
+				<div class="flex justify-start w-1/2">
+					<label for="codeLanguage" class="p mr-1">Language</label>
+					<select class="select w-1/4 p-1" name="codeLanguage" bind:value={codeLanguage}>
+						<option value={'Javascript'}> Javascript </option>
+						<option value={'Typescript'}> Typescript </option>
+						<option value={'Java'}> Java</option>
+						<option value={'C#'}> C#</option>
+						<option value={'C++'}> C++</option>
+						<option value={'PHP'}> PHP</option>
+						<option value={'Swift'}> Swift</option>
+						<option value={'Ruby'}> Ruby</option>
+					</select>
+				</div>
+
 				<button type="submit" class="variant-filled-secondary btn" on:click={() => summarize()}
 					>Submit</button
 				>
@@ -131,62 +145,68 @@
 			<Accordion>
 				{#each listOfSummarizedCode as summary }
 					<AccordionItem>
-						<svelte:fragment slot="summary">{summary.apiName}</svelte:fragment>
+						<svelte:fragment slot="summary">{#if summary.rating.isFavorite}<b>{summary.apiName}</b>{/if} {#if !summary.rating.isFavorite}{summary.apiName}{/if}</svelte:fragment>
 						<svelte:fragment slot="content">
 							<div class="flex flex-col items-center">
-								{summary.summary}
+								<p class="text-lg italic">{summary.summary}</p>
 								<!-- Evaluate Dropdown -->
 								<Accordion>
 									<AccordionItem>
 										<svelte:fragment slot="summary">Click To Evaluate</svelte:fragment>
 										<svelte:fragment slot="content">
 											<!-- Ratings for each summary -->
-											<span>
-												<p class="p">Naturalness? (1-5)</p>
-												<Ratings
-													bind:value={summary.rating.nScore}
-													max={5}
-													interactive
-													on:icon={(event) => (summary.rating.nScore = event.detail.index)}
-												>
-													<svelte:fragment slot="empty">-</svelte:fragment>
-													<svelte:fragment slot="full">x</svelte:fragment>
-												</Ratings>
-											</span>
-											<span>
-												<p class="p">Usefulness? (1-5)</p>
-												<Ratings
-													bind:value={summary.rating.uScore}
-													max={5}
-													interactive
-													on:icon={(event) => (summary.rating.uScore = event.detail.index)}
-												>
-													<svelte:fragment slot="empty">-</svelte:fragment>
-													<svelte:fragment slot="full">x</svelte:fragment>
-												</Ratings>
-											</span>
-											<span>
-												<p class="p">Consistent? (1-5)</p>
-												<Ratings
-													bind:value={summary.rating.cScore}
-													max={5}
-													interactive
-													on:icon={(event) => (summary.rating.cScore = event.detail.index)}
-												>
-													<svelte:fragment slot="empty">-</svelte:fragment>
-													<svelte:fragment slot="full">x</svelte:fragment>
-												</Ratings>
-											</span>
+											<div class="ml-4 outline-ourPage">
+												<span class="flex">
+													<p class="p w-1/3">Naturalness? (1-5)</p>
+													<Ratings
+														bind:value={summary.rating.nScore}
+														max={5}
+														interactive
+														on:icon={(event) => (summary.rating.nScore = event.detail.index)}
+													>
+														<svelte:fragment slot="empty">○</svelte:fragment>
+														<svelte:fragment slot="full">●</svelte:fragment>
+													</Ratings>
+												</span>
+												<span class="flex bg-ourPageLighter">
+													<p class="p w-1/3">Usefulness? (1-5)</p>
+													<Ratings
+														bind:value={summary.rating.uScore}
+														max={5}
+														interactive
+														on:icon={(event) => (summary.rating.uScore = event.detail.index)}
+													>
+														<svelte:fragment slot="empty">○</svelte:fragment>
+														<svelte:fragment slot="full">●</svelte:fragment>
+													</Ratings>
+												</span>
+												<span class="flex">
+													<p class="p w-1/3">Consistent? (1-5)</p>
+													<Ratings
+														bind:value={summary.rating.cScore}
+														max={5}
+														interactive
+														on:icon={(event) => (summary.rating.cScore = event.detail.index)}
+													>
+														<svelte:fragment slot="empty">○</svelte:fragment>
+														<svelte:fragment slot="full">●</svelte:fragment>
+													</Ratings>
+												</span>
+											</div>
 											<!-- User Text Review -->
 											<textarea
 												class="textarea p-4"
 												placeholder="Please give a few lines of feedback"
-												bind:value={summary.evalText}
+												bind:value={summary.rating.evalText}
 											/>
 											<button
 												class="variant-filled-secondary btn w-1/4"
 												on:click={() => sendReview()}>Send Review</button
 											>
+											<button
+												class="variant-filled-secondary btn w-1/4"
+												on:click={() => summary.rating.isFavorite = !summary.rating.isFavorite}>Toggle Favorite
+											</button>
 										</svelte:fragment>
 									</AccordionItem>
 								</Accordion>
