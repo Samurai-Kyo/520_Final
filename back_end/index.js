@@ -277,12 +277,21 @@ app.get('/getSummarizations', async (req, res) => {
     try {
     const username = req.headers.username;
     const token = req.headers.token;
+    const targetUsername = req.headers.targetusername;
+    if(username !== targetUsername){
+        if(!checkSession(username,token,true)){
+            res.status(403).send("User Not Admin");
+        }
+    }
+    if(targetUsername === "") {
+        targetUsername = username;
+    }
     if(!checkSession(username, token)) {
         res.status(401).send("Invalid session token.");
         return;
     }
     const query = 'SELECT * FROM summarizations WHERE username = ?';
-    const [results] = await pool.query(query, [username]);
+    const [results] = await pool.query(query, [targetUsername]);
     let content = [];
     results.forEach((element) => {
         content.push({id: element.id, code: element.inputCode, completions: JSON.parse(element.content)});

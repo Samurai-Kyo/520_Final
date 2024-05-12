@@ -25,6 +25,16 @@
 	getHistory();
 </script>
 
+<style>
+	.item-0 {
+		border-radius: 5px
+	}
+	.item-1 {
+		background-color: rgb(59 130 246 / 0.1);
+		border-radius: 5px
+	}
+</style>
+
 <button class="variant-filled-secondary btn" on:click={getHistory}>Refresh History</button>
 
 <div class="flex-col justify-center p-4">
@@ -33,7 +43,8 @@
 	{#if listOfSummarizes.length > 0}
 		<div class="card w-full space-y-4 p-4">
 			<Accordion>
-				{#each listOfSummarizes as summary}
+				{#each listOfSummarizes as summary, index}
+				<div class="item-{index % 2}">
 					<AccordionItem>
 						<svelte:fragment slot="summary">{"Code Input: " + summary.code}</svelte:fragment>
 						<svelte:fragment slot="content">
@@ -60,6 +71,7 @@
 							</div>
 						</svelte:fragment>
 					</AccordionItem>
+				</div>
 				{/each}
 			</Accordion>
 		</div>

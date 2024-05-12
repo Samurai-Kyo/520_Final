@@ -86,11 +86,11 @@
 
 <style>
 	.bg-ourPageLighter {
-		background-color: rgb(59 130 246 / 0.15)
+		background-color: rgb(59 130 246 / 0.1)
 	}
 	.outline-ourPage {
 		border: 2px solid;
-		border-color: rgb(59 130 246 / 0.15);
+		border-color: rgb(59 130 246 / 0.1);
 		border-radius: 6px;
 	}
 </style>
