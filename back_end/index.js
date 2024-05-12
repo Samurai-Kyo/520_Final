@@ -74,10 +74,10 @@ async function saveContent(username, code, completions, ratings = null) {
     let content = new SummarizationContent(completions, ratings);
     let contentString = JSON.stringify(content);
     let query = 'INSERT INTO summarizations (username, inputCode, content) VALUES (?, ?, ?)';
-    await connection.query(query, [username, code, contentString]);
+    let [res] = await connection.query(query, [username, code, contentString]);
     console.log("Content saved for user: ", username)
     connection.release();
-    return connection.insertId;
+    return res.insertId;
     }
     catch (err) {
         console.log("Error saving content: ", err);
