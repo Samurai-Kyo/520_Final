@@ -1,13 +1,12 @@
 <script>
 	import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
-	import { Ratings } from '@skeletonlabs/skeleton';
-	import { Store } from '../../routes/home/HistoryStore';
 	import { fetchHistory } from '../../routes/api/history.js';
 
 	/**
 	 * @type {{ isAdmin: string ; username: string; token: string , userList:Array<string>}}
 	 */
 	export let data;
+	export let userName = '';
 
 	let gettingHistory = false;
 	/**
@@ -18,7 +17,7 @@
 	async function getHistory() {
 		// get the text content of the file;
 		gettingHistory = true;
-		listOfSummarizes = await fetchHistory(data.username, data.token);
+		listOfSummarizes = await fetchHistory(data.username, data.token, userName || data.username);
 		console.log(listOfSummarizes);
 		gettingHistory = false;
 	}
