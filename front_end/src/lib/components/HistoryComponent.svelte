@@ -17,7 +17,7 @@
 	async function getHistory() {
 		// get the text content of the file;
 		gettingHistory = true;
-		listOfSummarizes = await fetchHistory(data.username, data.token, userName || "bad");
+		listOfSummarizes = await fetchHistory(data.username, data.token, userName || data.username);
 		console.log(listOfSummarizes);
 		gettingHistory = false;
 	}
