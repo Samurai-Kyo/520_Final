@@ -92,7 +92,7 @@
 			<div class="flex justify-evenly">
 				<div class="flex justify-evenly">
 					<label for="review count" class="p">Review Count</label>
-					<select class="select w-1/4 p-1" name="review count" bind:value={reviewCount}>
+					<select class="select w-1/3 p-1" name="review count" bind:value={reviewCount}>
 						<option value={1}>1</option>
 						<option value={2}>2</option>
 						<option value={3}>3</option>
@@ -181,7 +181,7 @@
 											<textarea
 												class="textarea p-4"
 												placeholder="Please give a few lines of feedback"
-												bind:value={summary.evalText}
+												bind:value={summary.rating.evalText}
 											/>
 											<button
 												class="variant-filled-secondary btn w-1/4"

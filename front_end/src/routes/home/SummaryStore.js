@@ -45,18 +45,6 @@ export class Summary {
 		this.rating.uScore = uScore;
 		this.rating.cScore = cScore;
 	}
-
-	getEvalText() {
-		return this.evalText;
-	}
-
-	/**
-	 * @param {string} evalText
-	 */
-	setEvalText(evalText) {
-		this.evalText = evalText;
-	}
-
 	/**
 	 * @param {{ summary: string; model: string; }} json
 	 */
@@ -70,12 +58,15 @@ export class Rating {
 	 * @param {number} nScore
 	 * @param {number} uScore
 	 * @param {number} cScore
+	 * @param {boolean} isFavorite
+	 * @param {string} evalText
 	 */
-	constructor(nScore, uScore, cScore, isFavorite = false) {
+	constructor(nScore, uScore, cScore, isFavorite = false, evalText = '') {
 		this.nScore = nScore;
 		this.uScore = uScore;
 		this.cScore = cScore;
 		this.isFavorite = isFavorite;
+		this.evalText = evalText;
 	}
 	getScores() {
 		return { nScore: this.nScore, uScore: this.uScore, cScore: this.cScore };
