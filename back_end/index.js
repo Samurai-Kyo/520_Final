@@ -398,6 +398,7 @@ app.post('/stats', async (req, res) => {
         return;
     }
     let results = [];
+    console.log(selectedUsers)
     if(selectedUsers.length === 0) {
         const query = 'SELECT * FROM summarizations';
         results = await pool.query(query);

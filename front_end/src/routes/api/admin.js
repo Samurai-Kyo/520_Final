@@ -34,17 +34,17 @@ export async function getAverageScores(username, token, userList) {
 	console.log(userList);
 	try {
 		const response = await fetch(`http://localhost:3000/stats/`, {
-			method: 'Post',
+			method: 'POST',
 			headers: {
-				application: 'application/json',
+				'Content-Type': 'application/json',
 				username: username,
 				token: token
 			},
 			body: JSON.stringify({ selectedUsers: userList })
 		});
 		if (response.ok) {
-			console.log(response);
 			const data = await response.json();
+			console.log(data);
 			return data;
 		}
 		return {};

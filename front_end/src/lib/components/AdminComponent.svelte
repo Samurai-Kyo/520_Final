@@ -8,6 +8,7 @@
 	import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
 	import CreateAccountFields from './CreateAccountFields.svelte';
 	import { getModalStore } from '@skeletonlabs/skeleton';
+	import HistoryComponent from '$lib/components/HistoryComponent.svelte';
 	const modalStore = getModalStore();
 
 	/**
@@ -21,6 +22,8 @@
 	export let data;
 	export let form;
 	let summariesCalculated = false;
+	let userName = '';
+	let loadedHistory = false;
 	const average = {
 		averageNaturalRating: 0,
 		averageUsefulRating: 0,
@@ -97,12 +100,29 @@
 			return;
 		}
 	}
+
+	async function getUserEvaluations() {
+		try {
+			const scores = await getAverageScores(data.username, data.token, userList);
+			average.averageNaturalRating = scores.averageNaturalRating;
+			average.averageUsefulRating = scores.averageUsefulRating;
+			average.averageConsistentRating = scores.averageConsistentRating;
+			loadedHistory = true;
+			return;
+		} catch (e) {
+			alert('Error getting average scores: ' + e);
+			return;
+		}
+	}
+
+
+
 </script>
 
 <div class="flex w-full flex-col p-5" />
 <Accordion>
 	<AccordionItem>
-		<svelte:fragment slot="summary">Add User?</svelte:fragment>
+		<svelte:fragment slot="summary">Add User</svelte:fragment>
 		<svelte:fragment slot="content">
 			<CreateAccountFields {form} />
 		</svelte:fragment>
@@ -129,7 +149,7 @@
 		</svelte:fragment>
 	</AccordionItem>
 	<AccordionItem>
-		<svelte:fragment slot="summary">Evaluations</svelte:fragment>
+		<svelte:fragment slot="summary">Average Evaluation Score</svelte:fragment>
 		<svelte:fragment slot="content">
 			{#each data.userList as user}
 				<div>
@@ -144,11 +164,31 @@
 			</button>
 			{#if summariesCalculated}
 				<div>
-					<p class="p">{average.averageNaturalRating}</p>
-					<p class="p">{average.averageUsefulRating}</p>
-					<p class="p">{average.averageConsistentRating}</p>
+					<p class="p">Average Naturalness Rating: {average.averageNaturalRating}</p>
+					<p class="p">Average Usefulness Rating: {average.averageUsefulRating}</p>
+					<p class="p">Average Consistent Rating: {average.averageConsistentRating}</p>
 				</div>
 			{/if}
 		</svelte:fragment>
+	</AccordionItem>
+	<AccordionItem>
+		<svelte:fragment slot="summary">User Evaluations</svelte:fragment>
+		<svelte:fragment slot="content">
+			<div class="width-full flex">
+				<label for="userEvaluations" class="p">User</label>
+				<button>
+					<button class="variant-filled-secondary btn" on:click={() => getUserEvaluations()}
+						>Get Score Average</button
+					>
+				</button>
+			</div>
+			<select class="select w-1/4 p-1" name="userEvaluations" bind:value={userName}>
+				{#each data.userList as user}
+					<option value={user}>{user}</option>
+				{/each}
+			</select></svelte:fragment>
+			{#if loadedHistory}
+				<HistoryComponent {data} {userName}/>
+			{/if}
 	</AccordionItem>
 </Accordion>

@@ -6,6 +6,7 @@
 	 * @type {{ isAdmin: string ; username: string; token: string , userList:Array<string>}}
 	 */
 	export let data;
+	export let userName = '';
 
 	let gettingHistory = false;
 	/**
@@ -16,7 +17,7 @@
 	async function getHistory() {
 		// get the text content of the file;
 		gettingHistory = true;
-		listOfSummarizes = await fetchHistory(data.username, data.token);
+		listOfSummarizes = await fetchHistory(data.username, data.token, userName || data.username);
 		console.log(listOfSummarizes);
 		gettingHistory = false;
 	}
