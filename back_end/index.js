@@ -338,18 +338,18 @@ app.post('/uploadSummarization', async (req, res) => {
 // The body should contain the ratings in the following format:
 // {
 //     ratings: [
-//         {model: "model name", naturalRating: 0, usefulRating: 0, consistentRating: 0},
-//         {model: "model name", naturalRating: 0, usefulRating: 0, consistentRating: 0},
+//         {naturalRating: 0, usefulRating: 0, consistentRating: 0},
+//         {naturalRating: 0, usefulRating: 0, consistentRating: 0},
 //         ...
 //     ]
 // }
-// There should only be one rating object for each model name, and there should only be ratings for models that provided summaries for the given ID. 
+// The ratings should be in the same order as the completions provided in the /summarize or /getSummarizations endpoints. (They correspond to the same index)
 // The headers should contain the ID of the summarization you are rating (returned by /summarize, or /getSummaries), and the username and token of the user making the request.
 app.post('/setRating', async (req, res) => {
     try {
     const username = req.headers.username;
     const token = req.headers.token;
-    const ratings = req.body.ratings; // Array of ratings in the form: {model: "model name", naturalRating: 0, usefulRating: 0, consistentRating: 0}
+    const ratings = req.body.ratings; // Array of ratings in the form: {naturalRating: 0, usefulRating: 0, consistentRating: 0}
     if(!checkSession(username, token)) {
         res.status(401).send("Invalid session token.");
         return;
@@ -361,16 +361,17 @@ app.post('/setRating', async (req, res) => {
         res.status(400).send("Invalid ID.");
         return;
     }
+    if(JSON.parse(results[0].content).content.length !== ratings.length) {
+        res.status(400).send("Invalid number of ratings provided.");
+        return;
+    }
     let oldContent = JSON.parse(results[0].content);
+    let index = 0;
     for (let rating of ratings) {
-        let index = oldContent.findIndex((element) => element.model === rating.model);
-        if(index === -1) {
-            res.status(400).send("Invalid model name: " + rating.model);
-            return;
-        }
-        oldContent[index].naturalRating = rating.naturalRating;
-        oldContent[index].usefulRating = rating.usefulRating;
-        oldContent[index].consistentRating = rating.consistentRating;
+        oldContent.content[index].naturalRating = rating.naturalRating;
+        oldContent.content[index].usefulRating = rating.usefulRating;
+        oldContent.content[index].consistentRating = rating.consistentRating;
+        index++;
     }
     let contentString = JSON.stringify(oldContent);
     const query2 = 'UPDATE summarizations SET content = ? WHERE id = ?';
