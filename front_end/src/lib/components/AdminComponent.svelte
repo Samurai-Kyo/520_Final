@@ -121,33 +121,37 @@
 	<AccordionItem>
 		<svelte:fragment slot="summary">User List</svelte:fragment>
 		<svelte:fragment slot="content">
-			{#each data.userList as user}
-				<Accordion>
-					<AccordionItem>
-						<svelte:fragment slot="summary">{user}</svelte:fragment>
-						<svelte:fragment slot="content"
-							><button class="variant-filled btn" on:click={() => setAdmin(user)}
-								>Make Admin?</button
-							><button class="variant-filled-error btn" on:click={() => delUser(user)}
-								>Delete User?</button
-							><button class="variant-filled-warning btn" on:click={() => changePass(user)}
-								>Change Password?</button
-							></svelte:fragment
-						>
-					</AccordionItem>
-				</Accordion>
-			{/each}
+			<div class="card p-4 max-h-60 max-w-min overflow-auto space-y-4">
+				{#each data.userList as user}
+					<Accordion>
+						<AccordionItem>
+							<svelte:fragment slot="summary">{user}</svelte:fragment>
+							<svelte:fragment slot="content"
+								><button class="variant-filled btn" on:click={() => setAdmin(user)}
+									>Make Admin?</button
+								><button class="variant-filled-error btn" on:click={() => delUser(user)}
+									>Delete User?</button
+								><button class="variant-filled-warning btn" on:click={() => changePass(user)}
+									>Change Password?</button
+								></svelte:fragment
+							>
+						</AccordionItem>
+					</Accordion>
+				{/each}
+			</div>
 		</svelte:fragment>
 	</AccordionItem>
 	<AccordionItem>
 		<svelte:fragment slot="summary">Average Evaluation Score</svelte:fragment>
 		<svelte:fragment slot="content">
-			{#each data.userList as user}
-				<div>
-					<input type="checkbox" autocomplete="off" on:click={() => toggleIfOnList(user)} />
-					{user};
-				</div>
-			{/each}
+			<div class="card p-4 max-h-60 max-w-min overflow-auto space-y-4">
+				{#each data.userList as user}
+					<label class="flex items-center space-x-2">
+						<input type="checkbox" autocomplete="off" on:click={() => toggleIfOnList(user)} />
+						<p>{user}</p>
+					</label>
+				{/each}
+			</div>
 			<button>
 				<button class="variant-filled-secondary btn" on:click={() => getScoreAverage()}
 					>Get Score Average</button
