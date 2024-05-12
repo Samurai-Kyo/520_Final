@@ -23,6 +23,7 @@
 	export let form;
 	let summariesCalculated = false;
 	let userName = '';
+	$: historyObject = [];
 	let loadedHistory = false;
 	const average = {
 		averageNaturalRating: 0,
@@ -102,21 +103,11 @@
 	}
 
 	async function getUserEvaluations() {
-		try {
-			const scores = await getAverageScores(data.username, data.token, userList);
-			average.averageNaturalRating = scores.averageNaturalRating;
-			average.averageUsefulRating = scores.averageUsefulRating;
-			average.averageConsistentRating = scores.averageConsistentRating;
-			loadedHistory = true;
-			return;
-		} catch (e) {
-			alert('Error getting average scores: ' + e);
-			return;
-		}
+		loadedHistory = false;
+		historyObject = [];
+		loadedHistory = true;
+		historyObject = [userName];
 	}
-
-
-
 </script>
 
 <div class="flex w-full flex-col p-5" />
@@ -176,19 +167,13 @@
 		<svelte:fragment slot="content">
 			<div class="width-full flex">
 				<label for="userEvaluations" class="p">User</label>
-				<button>
-					<button class="variant-filled-secondary btn" on:click={() => getUserEvaluations()}
-						>Get Score Average</button
-					>
-				</button>
 			</div>
 			<select class="select w-1/4 p-1" name="userEvaluations" bind:value={userName}>
 				{#each data.userList as user}
 					<option value={user}>{user}</option>
 				{/each}
-			</select></svelte:fragment>
-			{#if loadedHistory}
-				<HistoryComponent {data} {userName}/>
-			{/if}
+			</select>
+				<HistoryComponent {data} {userName} />
+		</svelte:fragment>
 	</AccordionItem>
 </Accordion>

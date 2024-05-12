@@ -17,11 +17,12 @@
 	async function getHistory() {
 		// get the text content of the file;
 		gettingHistory = true;
-		listOfSummarizes = await fetchHistory(data.username, data.token, userName || data.username);
+		listOfSummarizes = await fetchHistory(data.username, data.token, userName || "bad");
 		console.log(listOfSummarizes);
 		gettingHistory = false;
 	}
 	getHistory();
+	console.log("history component loaded");
 </script>
 
 <style>
