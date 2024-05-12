@@ -432,18 +432,25 @@ app.post('/stats', async (req, res) => {
     let totalNaturalRating = 0;
     let totalUsefulRating = 0;
     let totalConsistentRating = 0;
-    let n = 0
+    let numNaturalRatings = 0;
+    let numUsefulRatings = 0;
+    let numConsistentRatings = 0;
     for(let summarization of content) {
         for(let completion of summarization.completions) {
+            if(completion.naturalRating !== 0) numNaturalRatings++;
+            if(completion.usefulRating !== 0) numUsefulRatings++;
+            if(completion.consistentRating !== 0) numConsistentRatings++;
             totalNaturalRating += completion.naturalRating;
             totalUsefulRating += completion.usefulRating;
             totalConsistentRating += completion.consistentRating;
-            n++;
         }
     }
-    stats.averageNaturalRating = totalNaturalRating / n;
-    stats.averageUsefulRating = totalUsefulRating / n;
-    stats.averageConsistentRating = totalConsistentRating / n;
+    stats.averageNaturalRating = totalNaturalRating / numNaturalRatings;
+    stats.averageUsefulRating = totalUsefulRating / numUsefulRatings;
+    stats.averageConsistentRating = totalConsistentRating / numConsistentRatings;
+    if(isNaN(stats.averageNaturalRating)) stats.averageNaturalRating = 0;
+    if(isNaN(stats.averageUsefulRating)) stats.averageUsefulRating = 0;
+    if(isNaN(stats.averageConsistentRating)) stats.averageConsistentRating = 0;
     res.send(stats);
     console.log("Provided stats to: ", username);
     } catch (err) {
