@@ -1,11 +1,10 @@
-import { Summary } from '../home/SummaryStore';
-
 /**
  * @param {string} username
  * @param {string} token
  * @param {string} code
  * @param {string} codingLanguage
- * @param {string} models
+ * @param {number} reviewCount
+ * @param {string[]} models
  * @returns {Promise<[{summary: string, model: string}]>}
  */
 export async function summarizeCode(
@@ -13,8 +12,15 @@ export async function summarizeCode(
 	token,
 	code,
 	codingLanguage,
-	models = 'gpt-4-turbo,gpt-3.5-turbo,claude-3-opus-20240229,claude-3-haiku-20240307'
+	reviewCount,
+	models = ['gpt-4-turbo', 'gpt-3.5-turbo', 'claude-3-opus-20240229', 'claude-3-haiku-20240307']
 ) {
+	let modelString = 'gpt-4-turbo';
+	for (let i = 1; i < reviewCount; i++) {
+		modelString += ',' + models[i % 4];
+	}
+	console.log('summarizer.js -> modelString: ' + modelString);
+
 	try {
 		const response = await fetch(`http://localhost:3000/summarize/`, {
 			method: 'POST',
@@ -23,7 +29,7 @@ export async function summarizeCode(
 				username: username,
 				token: token
 			},
-			body: JSON.stringify({ code: code, codingLanguage: codingLanguage, models: models })
+			body: JSON.stringify({ code: code, codingLanguage: codingLanguage, models: modelString })
 		});
 		if (response.ok) {
 			const data = await response.json();
