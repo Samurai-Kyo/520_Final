@@ -74,10 +74,10 @@ async function saveContent(username, code, completions, ratings = null) {
     let content = new SummarizationContent(completions, ratings);
     let contentString = JSON.stringify(content);
     let query = 'INSERT INTO summarizations (username, inputCode, content) VALUES (?, ?, ?)';
-    await connection.query(query, [username, code, contentString]);
+    let [res] = await connection.query(query, [username, code, contentString]);
     console.log("Content saved for user: ", username)
     connection.release();
-    return connection.insertId;
+    return res.insertId;
     }
     catch (err) {
         console.log("Error saving content: ", err);
@@ -338,18 +338,18 @@ app.post('/uploadSummarization', async (req, res) => {
 // The body should contain the ratings in the following format:
 // {
 //     ratings: [
-//         {model: "model name", naturalRating: 0, usefulRating: 0, consistentRating: 0},
-//         {model: "model name", naturalRating: 0, usefulRating: 0, consistentRating: 0},
+//         {naturalRating: 0, usefulRating: 0, consistentRating: 0},
+//         {naturalRating: 0, usefulRating: 0, consistentRating: 0},
 //         ...
 //     ]
 // }
-// There should only be one rating object for each model name, and there should only be ratings for models that provided summaries for the given ID. 
+// The ratings should be in the same order as the completions provided in the /summarize or /getSummarizations endpoints. (They correspond to the same index)
 // The headers should contain the ID of the summarization you are rating (returned by /summarize, or /getSummaries), and the username and token of the user making the request.
 app.post('/setRating', async (req, res) => {
     try {
     const username = req.headers.username;
     const token = req.headers.token;
-    const ratings = req.body.ratings; // Array of ratings in the form: {model: "model name", naturalRating: 0, usefulRating: 0, consistentRating: 0}
+    const ratings = req.body.ratings; // Array of ratings in the form: {naturalRating: 0, usefulRating: 0, consistentRating: 0}
     if(!checkSession(username, token)) {
         res.status(401).send("Invalid session token.");
         return;
@@ -361,20 +361,22 @@ app.post('/setRating', async (req, res) => {
         res.status(400).send("Invalid ID.");
         return;
     }
+    if(JSON.parse(results[0].content).content.length !== ratings.length) {
+        res.status(400).send("Invalid number of ratings provided.");
+        return;
+    }
     let oldContent = JSON.parse(results[0].content);
+    let index = 0;
     for (let rating of ratings) {
-        let index = oldContent.findIndex((element) => element.model === rating.model);
-        if(index === -1) {
-            res.status(400).send("Invalid model name: " + rating.model);
-            return;
-        }
-        oldContent[index].naturalRating = rating.naturalRating;
-        oldContent[index].usefulRating = rating.usefulRating;
-        oldContent[index].consistentRating = rating.consistentRating;
+        oldContent.content[index].naturalRating = rating.naturalRating;
+        oldContent.content[index].usefulRating = rating.usefulRating;
+        oldContent.content[index].consistentRating = rating.consistentRating;
+        index++;
     }
     let contentString = JSON.stringify(oldContent);
     const query2 = 'UPDATE summarizations SET content = ? WHERE id = ?';
     await pool.query(query2, [contentString, id]);
+    console.log("Ratings updated for user: ", username)
     res.send("Ratings updated successfully.");
     }
     catch (err) {
@@ -386,16 +388,28 @@ app.post('/setRating', async (req, res) => {
 // Provides information about the summarizations in the database. 
 // The headers should contain the username and token of the user making the request.
 // The response will be a JSON object containing the following fields: totalSummarizations, averageNaturalRating, averageUsefulRating, averageConsistentRating.
-app.get('/stats', async (req, res) => {
+app.post('/stats', async (req, res) => {
     try {
     const username = req.headers.username;
     const token = req.headers.token;
+    const selectedUsers = req.body.selectedUsers;
     if(!checkSession(username, token, true)) {
         res.status(403).send("Invalid session token or not admin.");
         return;
     }
-    const query = 'SELECT * FROM summarizations';
-    const [results] = await pool.query(query);
+    let results = [];
+    if(selectedUsers.length === 0) {
+        const query = 'SELECT * FROM summarizations';
+        results = await pool.query(query);
+        results = results[0];
+    }
+    else {
+        let query = 'SELECT * FROM summarizations WHERE username = ?';
+        for(user of selectedUsers) {
+            let [tempResults] = await pool.query(query, [user]);
+            results = results.concat(tempResults);
+        }
+    }
     let content = [];
     results.forEach((element) => {
         content.push({id: element.id, username: element.username, code: element.inputCode, completions: JSON.parse(element.content).content});
@@ -419,7 +433,7 @@ app.get('/stats', async (req, res) => {
     stats.averageUsefulRating = totalUsefulRating / n;
     stats.averageConsistentRating = totalConsistentRating / n;
     res.send(stats);
-    console.log("Provided content for admin: ", username);
+    console.log("Provided stats to: ", username);
     } catch (err) {
         console.log("Error in /stats: ", err);
         res.status(500).send("Internal server error");
@@ -509,7 +523,7 @@ app.get('/deleteUser', async (req, res) => {
 });
 
 // changePassword endpoint allows for a user or admin to change passwords. 
-// The headers should contain the username, token, newpassword, and newusername.
+// The headers should contain the username, token, newpassword, and targetUsername.
 // If the user is an admin, they can change the password of any user.
 // If the user is not an admin, they can only change their own password.
 app.get('/changePassword', async (req, res) => {
@@ -517,8 +531,8 @@ app.get('/changePassword', async (req, res) => {
     const username = req.headers.username;
     const token = req.headers.token;
     const newPassword = req.headers.newpassword;
-    const newUsername = req.headers.newusername;
-    if(username !== newUsername){
+    const targetUsername = req.headers.targetusername;
+    if(username !== targetUsername){
         if(!checkSession(username,token,true)){
             res.status(403).send("User Not Admin");
         }
@@ -530,8 +544,8 @@ app.get('/changePassword', async (req, res) => {
     }
     const hashedPassword = crypto.createHash('sha256').update(newPassword).digest('base64');
     const query2 = "UPDATE credentials SET password = ? WHERE username = ?"
-    await pool.query(query2, [hashedPassword,newUsername]);
-    res.send("Password Changed for user: " + newUsername);
+    await pool.query(query2, [hashedPassword,targetUsername]);
+    res.send("Password Changed for user: " + targetUsername);
     res.end();
     console.log("password changed")
     }

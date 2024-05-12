@@ -1,13 +1,13 @@
 import { writable } from 'svelte/store';
 
-const sharedVariable = (() => {
-	let count = 0;
-	return {
-		increment: () => {
-			return count++;
-		}
-	};
-})();
+// const sharedVariable = (() => {
+// 	let count = 0;
+// 	return {
+// 		increment: () => {
+// 			return count++;
+// 		}
+// 	};
+// })();
 
 /**
  * @param {string} code
@@ -21,8 +21,7 @@ export class Summary {
 	constructor(summary, model) {
 		this.summary = summary;
 		this.apiName = model;
-		(this.nScore = 1), (this.uScore = 1), (this.cScore = 1), (this.evalText = '');
-		this.id = sharedVariable.increment();
+		this.rating = new Rating(0, 0, 0);
 	}
 	getCode() {
 		return this.summary;
@@ -32,12 +31,8 @@ export class Summary {
 		return this.apiName;
 	}
 
-	getId() {
-		return this.id;
-	}
-
 	getScores() {
-		return { nScore: this.nScore, uScore: this.uScore, cScore: this.cScore };
+		return { nScore: this.rating.nScore, uScore: this.rating.uScore, cScore: this.rating.cScore };
 	}
 
 	/**
@@ -46,9 +41,9 @@ export class Summary {
 	 * @param {number} cScore
 	 */
 	setScores(nScore, uScore, cScore) {
-		this.nScore = nScore;
-		this.uScore = uScore;
-		this.cScore = cScore;
+		this.rating.nScore = nScore;
+		this.rating.uScore = uScore;
+		this.rating.cScore = cScore;
 	}
 
 	getEvalText() {
@@ -70,12 +65,29 @@ export class Summary {
 	}
 }
 
+export class Rating {
+	/**
+	 * @param {number} nScore
+	 * @param {number} uScore
+	 * @param {number} cScore
+	 */
+	constructor(nScore, uScore, cScore) {
+		this.nScore = nScore;
+		this.uScore = uScore;
+		this.cScore = cScore;
+	}
+	getScores() {
+		return { nScore: this.nScore, uScore: this.uScore, cScore: this.cScore };
+	}
+}
+
 export class Summaries {
 	/**
 	 * @param {Array<Summary>} summaries
 	 */
-	constructor(summaries = []) {
+	constructor(summaries = [], id = 0) {
 		this.summaries = summaries;
+		this.id = id;
 	}
 	getSummaries() {
 		return this.summaries;
