@@ -1,6 +1,10 @@
 <script >
   export let form;
-  import { getModalStore } from '@skeletonlabs/skeleton';const modalStore = getModalStore();
+  import { getModalStore } from '@skeletonlabs/skeleton';
+  const modalStore = getModalStore();
+  /**
+   * @type { import('@skeletonlabs/skeleton').ModalSettings }
+  */
   const modal = {
 	type: 'alert',
 	// Data

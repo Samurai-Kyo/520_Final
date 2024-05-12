@@ -2,27 +2,29 @@
 	import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
 	import { Ratings } from '@skeletonlabs/skeleton';
 	import { Store, Summary } from '../../routes/home/SummaryStore';
-	import { enhance } from '$app/forms';
-	import { summarizeCode } from '../../routes/api/summarizer.js';
+	import { summarizeCode, createReview } from '../../routes/api/summarizer.js';
 	import { Summaries } from '../../routes/home/SummaryStore';
 
 	/**
 	 * @type {{ isAdmin: string ; username: string; token: string , userList:Array<string>}}
 	 */
 	export let data;
+	// True when waiting for summaries
+	let gettingSummaries = false;
+
+	// Shows summaries
+	let showSummaries = false;
 
 	//language dropdown
 	let codeLanguage = 'javascript';
 
 	// code input
 	let code = '';
-	// show accordion
-	let showList = true;
 
 	/**
-	 * @type {Summary[] }
+	 * @type {Summary[]}
 	 */
-	let listOfSummarizedCode = [new Summary('test', 'test')];
+	let listOfSummarizedCode = [];
 
 	Store.subscribe((_summaries) => {
 		listOfSummarizedCode = _summaries.getSummaries();
@@ -35,9 +37,11 @@
 	 */
 	async function summarize() {
 		console.log('Summarize');
+		gettingSummaries = true;
 		try {
 			if (!code || !codeLanguage) {
 				alert('Please enter code and select a language');
+				gettingSummaries = false;
 				return;
 			}
 
@@ -47,30 +51,32 @@
 			const summaries = await summarizeCode(username, token, code, codeLanguage);
 			if (!summaries) {
 				alert('Failed to summarize code.');
+				gettingSummaries = false;
 				return;
 			}
 			// Replace old summaries
 			let newSummaries = new Summaries();
+			console.log('Summaries: ------- ' + JSON.stringify(summaries));
 			summaries.forEach((summary) => {
 				newSummaries.addSummary(summary);
 			});
 			Store.set(newSummaries);
+			gettingSummaries = false;
 			return;
 		} catch (e) {
 			alert(e);
+			gettingSummaries = false;
 			return;
 		}
 	}
 
 	/**
-	 * @param {any} nScore
-	 * @param {any} uScore
-	 * @param {any} cScore
-	 * @param {any} evalText
+	 * @param {any} summary
 	 */
-	function sendReview(nScore, uScore, cScore, evalText) {
-		//todo
-		alert(nScore + uScore + cScore + evalText);
+	async function sendReview(summary) {
+		const username = data.username;
+		const token = data.token;
+		createReview(username, token, code, summary);
 	}
 </script>
 
@@ -97,81 +103,77 @@
 		</form>
 	</div>
 
+	{#if gettingSummaries}<p class="text-error-500">Generating Summaries!</p>{/if}
 	<!-- Show the summarizations -->
-
-	<div class="card w-full space-y-4 p-4">
-		<Accordion>
-			{#each listOfSummarizedCode as summary (summary.getId())}
-				<AccordionItem>
-					<svelte:fragment slot="summary">{summary.apiName}</svelte:fragment>
-					<svelte:fragment slot="content">
-						<div class="flex flex-col items-center">
-							{summary.summary}
-							<!-- Evaluate Dropdown -->
-							<Accordion>
-								<AccordionItem>
-									<svelte:fragment slot="summary">Click To Evaluate</svelte:fragment>
-									<svelte:fragment slot="content">
-										<!-- Ratings for each summary -->
-										<span>
-											<p class="p">Naturalness? (1-5)</p>
-											<Ratings
-												bind:value={summary.nScore}
-												max={5}
-												interactive
-												on:icon={(event) => (summary.nScore = event.detail.index)}
+	{#if listOfSummarizedCode.length > 0}
+		<div class="card w-full space-y-4 p-4">
+			<Accordion>
+				{#each listOfSummarizedCode as summary (summary.getId())}
+					<AccordionItem>
+						<svelte:fragment slot="summary">{summary.apiName}</svelte:fragment>
+						<svelte:fragment slot="content">
+							<div class="flex flex-col items-center">
+								{summary.summary}
+								<!-- Evaluate Dropdown -->
+								<Accordion>
+									<AccordionItem>
+										<svelte:fragment slot="summary">Click To Evaluate</svelte:fragment>
+										<svelte:fragment slot="content">
+											<!-- Ratings for each summary -->
+											<span>
+												<p class="p">Naturalness? (1-5)</p>
+												<Ratings
+													bind:value={summary.nScore}
+													max={5}
+													interactive
+													on:icon={(event) => (summary.nScore = event.detail.index)}
+												>
+													<svelte:fragment slot="empty">-</svelte:fragment>
+													<svelte:fragment slot="full">x</svelte:fragment>
+												</Ratings>
+											</span>
+											<span>
+												<p class="p">Usefulness? (1-5)</p>
+												<Ratings
+													bind:value={summary.uScore}
+													max={5}
+													interactive
+													on:icon={(event) => (summary.uScore = event.detail.index)}
+												>
+													<svelte:fragment slot="empty">-</svelte:fragment>
+													<svelte:fragment slot="full">x</svelte:fragment>
+												</Ratings>
+											</span>
+											<span>
+												<p class="p">Consistent? (1-5)</p>
+												<Ratings
+													bind:value={summary.cScore}
+													max={5}
+													interactive
+													on:icon={(event) => (summary.cScore = event.detail.index)}
+												>
+													<svelte:fragment slot="empty">-</svelte:fragment>
+													<svelte:fragment slot="full">x</svelte:fragment>
+												</Ratings>
+											</span>
+											<!-- User Text Review -->
+											<textarea
+												class="textarea p-4"
+												placeholder="Please give a few lines of feedback"
+												bind:value={summary.evalText}
+											/>
+											<button
+												class="variant-filled-secondary btn w-1/4"
+												on:click={() => sendReview(summary)}>Send Review</button
 											>
-												<svelte:fragment slot="empty">-</svelte:fragment>
-												<svelte:fragment slot="full">x</svelte:fragment>
-											</Ratings>
-										</span>
-										<span>
-											<p class="p">Usefulness? (1-5)</p>
-											<Ratings
-												bind:value={summary.uScore}
-												max={5}
-												interactive
-												on:icon={(event) => (summary.uScore = event.detail.index)}
-											>
-												<svelte:fragment slot="empty">-</svelte:fragment>
-												<svelte:fragment slot="full">x</svelte:fragment>
-											</Ratings>
-										</span>
-										<span>
-											<p class="p">Consistent? (1-5)</p>
-											<Ratings
-												bind:value={summary.cScore}
-												max={5}
-												interactive
-												on:icon={(event) => (summary.cScore = event.detail.index)}
-											>
-												<svelte:fragment slot="empty">-</svelte:fragment>
-												<svelte:fragment slot="full">x</svelte:fragment>
-											</Ratings>
-										</span>
-										<!-- User Text Review -->
-										<textarea
-											class="textarea p-4"
-											placeholder="Please give a few lines of feedback"
-											bind:value={summary.evalText}
-										/>
-										<button
-											class="variant-filled-secondary btn w-1/4"
-											on:click={() =>
-												sendReview(
-													summary.nScore,
-													summary.uScore,
-													summary.cScore,
-													summary.evalText
-												)}>Send Review</button
-										>
-									</svelte:fragment>
-								</AccordionItem>
-							</Accordion>
-						</div>
-					</svelte:fragment>
-				</AccordionItem>
-			{/each}
-		</Accordion>
-	</div>
+										</svelte:fragment>
+									</AccordionItem>
+								</Accordion>
+							</div>
+						</svelte:fragment>
+					</AccordionItem>
+				{/each}
+			</Accordion>
+		</div>
+	{/if}
 </div>

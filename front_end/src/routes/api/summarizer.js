@@ -24,12 +24,13 @@ export async function summarizeCode(
 			body: JSON.stringify({ code: code, codingLanguage: codingLanguage, models: models })
 		});
 		if (response.ok) {
-			const data = await response.json();
+			const data = await response.json(); 
+			console.log('summarizer.js -> data: ' + data);
 			const remappedData = data.map((/** @type {{ text: string; model: string; }} */ summary) => {
-				return { summary: summary.text, model: summary.model };
+				return { summary: summary.text, model: summary.model};
 			});
-			console.log('summarizer.js -> remappedData: ');
-			console.log(remappedData);
+			// console.log('summarizer.js -> remappedData: ');
+			// console.log(remappedData);
 			return remappedData;
 		} else {
 			console.log('Summary failed');
@@ -38,6 +39,42 @@ export async function summarizeCode(
 	} catch (error) {
 		console.log('Summary failed - ' + error);
 		return [{ summary: '', model: '' }];
+	}
+}
+
+/**
+ * @param {string} username
+ * @param {string} token
+ * @param {string} code
+ * @param {any} summary
+ */
+export async function createReview(username, token, code, summary) {
+	const evaluation = {
+		naturalRating: summary.nScore,
+		usefulRating: summary.uScore,
+		consistentRating: summary.cScore,
+		evaluationText: summary.evalText
+	};
+	const apiData = {
+		model: summary.apiName,
+		text: summary.summary
+	};
+	try {
+		const response = await fetch(`http://localhost:3000/uploadSummarization/`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				username: username,
+				token: token
+			},
+			body: JSON.stringify({ code: code, completions: [apiData], ratings: [evaluation] })
+		});
+		if (!response.ok) {
+			return false;
+		} 
+		return true;
+	} catch (error) {
+		console.log('Review upload failed - ' + error);
 	}
 }
 
