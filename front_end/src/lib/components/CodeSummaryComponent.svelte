@@ -12,8 +12,8 @@
 	// True when waiting for summaries
 	let gettingSummaries = false;
 
-	// Shows summaries
-	let showSummaries = false;
+	// Number of reviews to get
+	let reviewCount = 1;
 
 	//language dropdown
 	let codeLanguage = 'javascript';
@@ -52,7 +52,7 @@
 			const username = data.username;
 			const token = data.token;
 			// @ts-ignore
-			const summaries = await summarizeCode(username, token, code, codeLanguage);
+			const summaries = await summarizeCode(username, token, code, codeLanguage, reviewCount);
 			if (!summaries) {
 				alert('Failed to summarize code.');
 				gettingSummaries = false;
@@ -73,7 +73,6 @@
 			return;
 		}
 	}
-
 	async function sendReview() {
 		const username = data.username;
 		const token = data.token;
@@ -91,6 +90,23 @@
 		<form>
 			<textarea class="textarea p-4" placeholder="Paste Code Here" name="code" bind:value={code} />
 			<div class="flex justify-evenly">
+				<div class="flex justify-evenly">
+					<label for="review count" class="p">Review Count</label>
+					<select class="select w-1/4 p-1" name="review count" bind:value={reviewCount}>
+						<option value={1}>1</option>
+						<option value={2}>2</option>
+						<option value={3}>3</option>
+						<option value={4}>4</option>
+						<option value={5}>5</option>
+						<option value={6}>6</option>
+						<option value={7}>7</option>
+						<option value={8}>8</option>
+						<option value={9}>9</option>
+						<option value={10}>10</option>
+					</select>
+				</div>
+
+				<label for="codeLanguage" class="p">Language</label>
 				<select class="select w-1/4 p-1" name="codeLanguage" bind:value={codeLanguage}>
 					<option value={'Javascript'}> Javascript </option>
 					<option value={'Typescript'}> Typescript </option>
