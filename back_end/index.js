@@ -522,7 +522,7 @@ app.get('/deleteUser', async (req, res) => {
 });
 
 // changePassword endpoint allows for a user or admin to change passwords. 
-// The headers should contain the username, token, newpassword, and newusername.
+// The headers should contain the username, token, newpassword, and targetUsername.
 // If the user is an admin, they can change the password of any user.
 // If the user is not an admin, they can only change their own password.
 app.get('/changePassword', async (req, res) => {
@@ -530,8 +530,8 @@ app.get('/changePassword', async (req, res) => {
     const username = req.headers.username;
     const token = req.headers.token;
     const newPassword = req.headers.newpassword;
-    const newUsername = req.headers.newusername;
-    if(username !== newUsername){
+    const targetUsername = req.headers.targetusername;
+    if(username !== targetUsername){
         if(!checkSession(username,token,true)){
             res.status(403).send("User Not Admin");
         }
@@ -543,8 +543,8 @@ app.get('/changePassword', async (req, res) => {
     }
     const hashedPassword = crypto.createHash('sha256').update(newPassword).digest('base64');
     const query2 = "UPDATE credentials SET password = ? WHERE username = ?"
-    await pool.query(query2, [hashedPassword,newUsername]);
-    res.send("Password Changed for user: " + newUsername);
+    await pool.query(query2, [hashedPassword,targetUsername]);
+    res.send("Password Changed for user: " + targetUsername);
     res.end();
     console.log("password changed")
     }
