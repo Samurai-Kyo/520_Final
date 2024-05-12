@@ -376,6 +376,7 @@ app.post('/setRating', async (req, res) => {
     let contentString = JSON.stringify(oldContent);
     const query2 = 'UPDATE summarizations SET content = ? WHERE id = ?';
     await pool.query(query2, [contentString, id]);
+    console.log("Ratings updated for user: ", username)
     res.send("Ratings updated successfully.");
     }
     catch (err) {

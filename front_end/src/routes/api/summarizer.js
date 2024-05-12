@@ -1,4 +1,4 @@
-import { Summary } from '../home/SummaryStore';
+import { Summary, Rating } from '../home/SummaryStore';
 
 /**
  * @param {string} username
@@ -6,7 +6,7 @@ import { Summary } from '../home/SummaryStore';
  * @param {string} code
  * @param {string} codingLanguage
  * @param {string} models
- * @returns {Promise<[{summary: string, model: string}]>}
+ * @returns {Promise<{summaries:[{summary: string, model: string}], summariesID: number}>}
  */
 export async function summarizeCode(
 	username,
@@ -28,6 +28,7 @@ export async function summarizeCode(
 		if (response.ok) {
 			const data = await response.json();
 			console.log('summarizer.js -> data: ' + data);
+			const id = data[data.length - 1].id;
 			const remappedData = data
 				.filter((/** @type {{ text: string; model: string; }} */ summary) => summary.text)
 				.map((/** @type {{ text: string; model: string; }} */ summary) => {
@@ -35,43 +36,37 @@ export async function summarizeCode(
 				});
 			// console.log('summarizer.js -> remappedData: ');
 			// console.log(remappedData);
-			return remappedData;
+			return {summaries:remappedData, summariesID: id};
 		} else {
 			console.log('Summary failed');
-			return [{ summary: '', model: '' }];
+			return {summaries:[{ summary: '', model: ''}], summariesID: 0 };
 		}
 	} catch (error) {
 		console.log('Summary failed - ' + error);
-		return [{ summary: '', model: '' }];
+		return {summaries:[{ summary: '', model: ''}], summariesID: 0 };
 	}
 }
 
 /**
  * @param {string} username
  * @param {string} token
- * @param {string} code
- * @param {any} summary
+ * @param {Rating[]} ratings
+ * @param {number} id
  */
-export async function createReview(username, token, code, summary) {
-	const evaluation = {
-		naturalRating: summary.nScore,
-		usefulRating: summary.uScore,
-		consistentRating: summary.cScore,
-		evaluationText: summary.evalText
-	};
-	const apiData = {
-		model: summary.apiName,
-		text: summary.summary
-	};
+export async function createReview(username, token, id, ratings) {
+	let remappedRatings = ratings.map((rating) => { 
+		return {"naturalRating":rating.nScore, "usefulRating":rating.uScore, "consistentRating":rating.cScore} 
+	});
 	try {
-		const response = await fetch(`http://localhost:3000/uploadSummarization/`, {
+		const response = await fetch(`http://localhost:3000/setRating/`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
 				username: username,
-				token: token
+				token: token,
+				id: id.toString()
 			},
-			body: JSON.stringify({ code: code, completions: [apiData], ratings: [evaluation] })
+			body: JSON.stringify({ ratings: remappedRatings})
 		});
 		if (!response.ok) {
 			return false;

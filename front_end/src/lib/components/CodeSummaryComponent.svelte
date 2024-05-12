@@ -1,7 +1,7 @@
 <script>
 	import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
 	import { Ratings } from '@skeletonlabs/skeleton';
-	import { Store, Summary } from '../../routes/home/SummaryStore';
+	import { Store, Summary, Rating } from '../../routes/home/SummaryStore';
 	import { summarizeCode, createReview } from '../../routes/api/summarizer.js';
 	import { Summaries } from '../../routes/home/SummaryStore';
 
@@ -20,6 +20,9 @@
 
 	// code input
 	let code = '';
+	
+	// ID Of the Summaries
+	let id = 0;
 
 	/**
 	 * @type {Summary[]}
@@ -28,6 +31,7 @@
 
 	Store.subscribe((_summaries) => {
 		listOfSummarizedCode = _summaries.getSummaries();
+		id = _summaries.id;
 		console.log('Store updated');
 		console.log(JSON.stringify(listOfSummarizedCode));
 	});
@@ -55,9 +59,9 @@
 				return;
 			}
 			// Replace old summaries
-			let newSummaries = new Summaries();
+			let newSummaries = new Summaries([], summaries.summariesID);
 			console.log('Summaries: ------- ' + JSON.stringify(summaries));
-			summaries.forEach((summary) => {
+			summaries.summaries.forEach((summary) => {
 				newSummaries.addSummary(summary);
 			});
 			Store.set(newSummaries);
@@ -70,13 +74,14 @@
 		}
 	}
 
-	/**
-	 * @param {any} summary
-	 */
-	async function sendReview(summary) {
+	async function sendReview() {
 		const username = data.username;
 		const token = data.token;
-		createReview(username, token, code, summary);
+		let ratings = []
+		for (let i = 0; i < listOfSummarizedCode.length; i++) {
+			ratings.push(listOfSummarizedCode[i].rating)
+		}
+		createReview(username, token, id, ratings);
 	}
 </script>
 
@@ -108,7 +113,7 @@
 	{#if listOfSummarizedCode.length > 0}
 		<div class="card w-full space-y-4 p-4">
 			<Accordion>
-				{#each listOfSummarizedCode as summary (summary.getId())}
+				{#each listOfSummarizedCode as summary }
 					<AccordionItem>
 						<svelte:fragment slot="summary">{summary.apiName}</svelte:fragment>
 						<svelte:fragment slot="content">
@@ -123,10 +128,10 @@
 											<span>
 												<p class="p">Naturalness? (1-5)</p>
 												<Ratings
-													bind:value={summary.nScore}
+													bind:value={summary.rating.nScore}
 													max={5}
 													interactive
-													on:icon={(event) => (summary.nScore = event.detail.index)}
+													on:icon={(event) => (summary.rating.nScore = event.detail.index)}
 												>
 													<svelte:fragment slot="empty">-</svelte:fragment>
 													<svelte:fragment slot="full">x</svelte:fragment>
@@ -135,10 +140,10 @@
 											<span>
 												<p class="p">Usefulness? (1-5)</p>
 												<Ratings
-													bind:value={summary.uScore}
+													bind:value={summary.rating.uScore}
 													max={5}
 													interactive
-													on:icon={(event) => (summary.uScore = event.detail.index)}
+													on:icon={(event) => (summary.rating.uScore = event.detail.index)}
 												>
 													<svelte:fragment slot="empty">-</svelte:fragment>
 													<svelte:fragment slot="full">x</svelte:fragment>
@@ -147,10 +152,10 @@
 											<span>
 												<p class="p">Consistent? (1-5)</p>
 												<Ratings
-													bind:value={summary.cScore}
+													bind:value={summary.rating.cScore}
 													max={5}
 													interactive
-													on:icon={(event) => (summary.cScore = event.detail.index)}
+													on:icon={(event) => (summary.rating.cScore = event.detail.index)}
 												>
 													<svelte:fragment slot="empty">-</svelte:fragment>
 													<svelte:fragment slot="full">x</svelte:fragment>
@@ -164,7 +169,7 @@
 											/>
 											<button
 												class="variant-filled-secondary btn w-1/4"
-												on:click={() => sendReview(summary)}>Send Review</button
+												on:click={() => sendReview()}>Send Review</button
 											>
 										</svelte:fragment>
 									</AccordionItem>
