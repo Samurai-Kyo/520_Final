@@ -386,16 +386,28 @@ app.post('/setRating', async (req, res) => {
 // Provides information about the summarizations in the database. 
 // The headers should contain the username and token of the user making the request.
 // The response will be a JSON object containing the following fields: totalSummarizations, averageNaturalRating, averageUsefulRating, averageConsistentRating.
-app.get('/stats', async (req, res) => {
+app.post('/stats', async (req, res) => {
     try {
     const username = req.headers.username;
     const token = req.headers.token;
+    const selectedUsers = req.body.selectedUsers;
     if(!checkSession(username, token, true)) {
         res.status(403).send("Invalid session token or not admin.");
         return;
     }
-    const query = 'SELECT * FROM summarizations';
-    const [results] = await pool.query(query);
+    let results = [];
+    if(selectedUsers.length === 0) {
+        const query = 'SELECT * FROM summarizations';
+        results = await pool.query(query);
+        results = results[0];
+    }
+    else {
+        let query = 'SELECT * FROM summarizations WHERE username = ?';
+        for(user of selectedUsers) {
+            let [tempResults] = await pool.query(query, [user]);
+            results = results.concat(tempResults);
+        }
+    }
     let content = [];
     results.forEach((element) => {
         content.push({id: element.id, username: element.username, code: element.inputCode, completions: JSON.parse(element.content).content});
@@ -419,7 +431,7 @@ app.get('/stats', async (req, res) => {
     stats.averageUsefulRating = totalUsefulRating / n;
     stats.averageConsistentRating = totalConsistentRating / n;
     res.send(stats);
-    console.log("Provided content for admin: ", username);
+    console.log("Provided stats to: ", username);
     } catch (err) {
         console.log("Error in /stats: ", err);
         res.status(500).send("Internal server error");
