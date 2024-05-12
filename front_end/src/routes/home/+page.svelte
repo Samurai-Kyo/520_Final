@@ -7,6 +7,7 @@
 	import { TabGroup, Tab, TabAnchor } from '@skeletonlabs/skeleton';
 	import CodeSummaryComponent from '$lib/components/CodeSummaryComponent.svelte';
 	import FileUploadComponent from '$lib/components/FileUploadComponent.svelte';
+	import UserComponent from '$lib/components/UserComponent.svelte';
 	import AdminComponent from '$lib/components/AdminComponent.svelte';
 	import { getModalStore } from '@skeletonlabs/skeleton';
 	const modalStore = getModalStore();
@@ -17,6 +18,10 @@
 	// console.log(typeof data.firstTimeAdmin);
 	if (data.firstTimeAdmin === 'true') {
 		currentTab = 2;
+
+		/**
+		 * @type {import('@skeletonlabs/skeleton').ModalSettings}
+		 */
 		const modal = {
 			type: 'alert',
 			// Data
@@ -30,6 +35,7 @@
 <TabGroup justify="justify-center">
 	<Tab bind:group={currentTab} name="Summarizer" value={0}>Summarizer</Tab>
 	<Tab bind:group={currentTab} name="fileUploader" value={1}>Upload File</Tab>
+	<Tab bind:group={currentTab} name="userTab" value={3}>User</Tab>
 	{#if isAdmin}
 		<Tab bind:group={currentTab} name="fileUploader" value={2}>Admin</Tab>
 	{/if}
@@ -37,9 +43,11 @@
 		{#if currentTab === 0}
 			<CodeSummaryComponent {data} />
 		{:else if currentTab === 1}
-			<FileUploadComponent />
+			<FileUploadComponent {data} />
 		{:else if currentTab === 2}
 			<AdminComponent {data} {form} />
+		{:else if currentTab === 3}
+			<UserComponent {data} />
 		{/if}
 	</svelte:fragment>
 </TabGroup>

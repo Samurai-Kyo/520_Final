@@ -1,8 +1,8 @@
 <script>
 	import {
 		makeAdmin,
-		createUser,
-		getUsers,
+		// createUser,
+		// getUsers,
 		deleteUser,
 		changePassword
 	} from '../../routes/api/admin.js';
@@ -23,6 +23,9 @@
 	 */
 	function changePass(newUsername) {
 		new Promise((resolve) => {
+			/**
+			 * @type {import('@skeletonlabs/skeleton').ModalSettings}
+			 */
 			const passwordModal = {
 				type: 'prompt',
 				title: 'Change Password',
@@ -38,26 +41,34 @@
 	 */
 
 	function setAdmin(newAdminName) {
-		makeAdmin(data.username, data.token, newAdminName);
+		if (newAdminName === 'admin') {
+			alert('You cannot change the admin status of the admin account');
+			return;
+		} else {
+			makeAdmin(data.username, data.token, newAdminName);
+		}
 	}
-
 
 	/**
 	 * @param {string} toDelete
 	 */
 	function delUser(toDelete) {
-		deleteUser(data.username, data.token, toDelete);
-		data.userList = data.userList.filter((value) => !(value === toDelete));
-		console.log(data.userList);
+		if (toDelete === 'admin') {
+			alert('You cannot delete an admin account. Please contact the server admin if you need to delete an admin account');
+			return;
+		} else {
+			deleteUser(data.username, data.token, toDelete);
+			data.userList = data.userList.filter((value) => !(value === toDelete));
+		}
 	}
 
-	/**
-	 * @param {string} username
-	 * @param {string} password
-	 */
-	function addUser(username, password) {
-		createUser(data.username, data.token, username, password);
-	}
+	// /**
+	//  * @param {string} username
+	//  * @param {string} password
+	//  */
+	// function addUser(username, password) {
+	// 	createUser(data.username, data.token, username, password);
+	// }
 </script>
 
 <div class="flex w-full flex-col p-5" />
