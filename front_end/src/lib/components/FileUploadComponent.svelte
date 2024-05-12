@@ -18,8 +18,8 @@
 			{ model: 'model name', text: 'completion text' }
 		],
 		ratings: [
-			{ naturalRating: 0, usefulRating: 0, consistentRating: 0 },
-			{ naturalRating: 0, usefulRating: 0, consistentRating: 0 }
+			{ naturalRating: 0, usefulRating: 0, consistentRating: 0, favorite: false, userNotes: ''},
+			{ naturalRating: 0, usefulRating: 0, consistentRating: 0, favorite: false, userNotes: ''}
 		]
 	};
 	let uploadedFile = false;
@@ -29,7 +29,7 @@
 		let text = await file[0].text();
 		try {
 			/**
-			 * @type {{code: string, completions: {model: string, text: string}[], ratings: {naturalRating: number, usefulRating: number, consistentRating: number}[]}}
+			 * @type {{code: string, completions: {model: string, text: string}[], ratings: {naturalRating: number, usefulRating: number, consistentRating: number, favorite: boolean, userNotes: string}[]}}
 			 */
 			let json = JSON.parse(text);
 			if (

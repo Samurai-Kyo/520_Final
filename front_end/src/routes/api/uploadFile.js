@@ -1,7 +1,7 @@
 /**
  * @param {string} username
  * @param {string} token
- * @param {{code: string, completions: {model: string, text: string}[], ratings: {naturalRating: number, usefulRating: number, consistentRating: number}[]}} summary
+ * @param {{code: string, completions: {model: string, text: string}[], ratings: {naturalRating: number, usefulRating: number, consistentRating: number, favorite: boolean, userNotes: string}[]}} summary
  */
 export async function uploadSummarization(username, token, summary) {
 	try {
