@@ -1,3 +1,5 @@
+import { Summary } from '../home/SummaryStore';
+
 /**
  * @param {string} username
  * @param {string} token
@@ -24,11 +26,13 @@ export async function summarizeCode(
 			body: JSON.stringify({ code: code, codingLanguage: codingLanguage, models: models })
 		});
 		if (response.ok) {
-			const data = await response.json(); 
+			const data = await response.json();
 			console.log('summarizer.js -> data: ' + data);
-			const remappedData = data.map((/** @type {{ text: string; model: string; }} */ summary) => {
-				return { summary: summary.text, model: summary.model};
-			});
+			const remappedData = data
+				.filter((/** @type {{ text: string; model: string; }} */ summary) => summary.text)
+				.map((/** @type {{ text: string; model: string; }} */ summary) => {
+					return { summary: summary.text, model: summary.model };
+				});
 			// console.log('summarizer.js -> remappedData: ');
 			// console.log(remappedData);
 			return remappedData;
@@ -71,7 +75,7 @@ export async function createReview(username, token, code, summary) {
 		});
 		if (!response.ok) {
 			return false;
-		} 
+		}
 		return true;
 	} catch (error) {
 		console.log('Review upload failed - ' + error);
