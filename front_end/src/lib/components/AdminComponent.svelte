@@ -23,8 +23,6 @@
 	export let form;
 	let summariesCalculated = false;
 	let userName = '';
-	$: historyObject = [];
-	let loadedHistory = false;
 	const average = {
 		averageNaturalRating: 0,
 		averageUsefulRating: 0,
@@ -103,10 +101,6 @@
 	}
 
 	async function getUserEvaluations() {
-		loadedHistory = false;
-		historyObject = [];
-		loadedHistory = true;
-		historyObject = [userName];
 	}
 </script>
 

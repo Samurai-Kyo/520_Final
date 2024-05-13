@@ -1,7 +1,8 @@
 <script>
 	import { FileDropzone } from '@skeletonlabs/skeleton';
 	import { uploadSummarization } from '../../routes/api/uploadFile.js';
-
+	import ReviewComponent from './ReviewComponent.svelte';
+	import { Rating, Summaries, Summary } from '../../routes/home/SummaryStore';
 	/**
 	 * @type {{ isAdmin: string ; username: string; token: string , userList:Array<string>}}
 	 */
@@ -12,40 +13,64 @@
 	 */
 	let file;
 	let exampleCode = {
-		code: 'your code here',
-		completions: [
-			{ model: 'model name', text: 'completion text' },
-			{ model: 'model name', text: 'completion text' }
-		],
-		ratings: [
-			{ naturalRating: 0, usefulRating: 0, consistentRating: 0, favorite: false, userNotes: ''},
-			{ naturalRating: 0, usefulRating: 0, consistentRating: 0, favorite: false, userNotes: ''}
+		content: [
+		{
+			code: 'your code here',
+			completions: [
+				{ model: 'model name', text: 'completion text' },
+				{ model: 'model name', text: 'completion text' }
+			]
+		}
 		]
 	};
 	let uploadedFile = false;
+	/**
+	 * @type {any[]}
+	 */
+	let uploadedPairs = [];
 
 	async function onUpload() {
 		// get the text content of the file;
 		let text = await file[0].text();
 		try {
 			/**
-			 * @type {{code: string, completions: {model: string, text: string}[], ratings: {naturalRating: number, usefulRating: number, consistentRating: number, favorite: boolean, userNotes: string}[]}}
+			 * @type {{code: string, completions: {model: string, text: string}[]}[]}
 			 */
-			let json = JSON.parse(text);
+			let json = JSON.parse(text).contents;
 			if (
-				json.code &&
-				json.completions &&
-				json.ratings &&
-				(await uploadSummarization(data.username, data.token, json))
+				json[0].code &&
+				json[0].completions
 			) {
+				for (let i = 0; i < json.length; i++) {
+					uploadedPairs.push({code: json[i].code, summaries: extractSummaries(json[i].completions)});
+				}
 				uploadedFile = true;
+
 			} else {
 				alert('invalid json format');
 			}
 		} catch (e) {
 			alert('json parse failed: ' + e);
 		}
+		// @ts-ignore
+		document.querySelector('pre').innerHTML = "";
 	}
+
+	/**
+	 * @param {{model: string, text: string}[]} content
+	 */
+function extractSummaries(content) {
+	/**
+	 * @type {Summary[]}
+	 */
+	let summaries = [];
+	for (let i = 0; i < content.length; i++) {
+		let summary = new Summary(content[i].text, content[i].model);
+		summaries.push(summary);
+	}
+	return summaries;
+}
+
 </script>
 
 <div>
@@ -59,5 +84,12 @@
 	</FileDropzone>
 </div>
 {#if uploadedFile === true}
-	<p class="text-error-500">Uploaded File!</p>
+	<p class="text-error-500">Uploaded File with {uploadedPairs.length} pairs!</p>
+	{#each uploadedPairs as pair}
+		<div class="card w-full space-y-4 p-4">
+			{pair.code}
+			<ReviewComponent {data} listOfSummarizedCode = {pair.summaries} override={true} originalCode={pair.code}/>
+		</div>
+		<br>
+	{/each}
 {/if}

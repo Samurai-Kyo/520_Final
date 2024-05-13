@@ -123,7 +123,7 @@
 	<!-- Show the summarizations -->
 	{#if listOfSummarizedCode.length > 0}
 		<div class="card w-full space-y-4 p-4">
-			<ReviewComponent />
+			<ReviewComponent {data} {listOfSummarizedCode}/>
 		</div>
 	{/if}
 </div>
