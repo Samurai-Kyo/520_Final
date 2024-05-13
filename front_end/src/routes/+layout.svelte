@@ -9,7 +9,7 @@
 	<h1 class="h1">
 		<span
 			class="from-primary-500 to-secondary-300 bg-gradient-to-tr box-decoration-clone bg-clip-text text-transparent"
-			>520 Final</span
+			>Code Summarizer</span
 		>
 	</h1>
 </div>
