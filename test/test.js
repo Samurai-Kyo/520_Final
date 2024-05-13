@@ -21,11 +21,12 @@ test.serial('/login admin login', async t => {
 
   const data = await response.json();
   adminToken = data.token;
+
   t.not(data.token, undefined);
   t.is(data.firstTimeAdmin, true);
 })
 
-test.serial('/login token correctly invalidates token', async t => {
+test.serial('/login token correctly invalidates previous token', async t => {
 
   const response = await fetch(`http://localhost:3000/login`, {
     method: 'GET',
@@ -412,5 +413,4 @@ test.serial('/deleteUser delete testUser', async t => {
   t.is(response.ok, true);
 
 })
-
 

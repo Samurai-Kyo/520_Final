@@ -1,0 +1,49 @@
+tested on the front-end
+
+//login
+- admin login
+- non admin login
+- no username login
+- no password login
+- neither fields
+
+
+// register
+- no username
+- no password
+- no fields
+- regular registration
+
+//change password
+- empty password
+- correctly displays modal
+
+// summarizer
+- code input
+- bolded favorite review
+- empty input language defaults to javascript
+- empty code input
+- empty review
+- empty feedback
+- full written feedback
+- fully formed bubbles
+
+
+// history
+- shows favorited
+- refresh history
+
+// upload file
+- alert that shows parse failed
+- successfully upload file
+- successfully uploads to history
+- shows average
+
+// admin
+- make admin
+- delete user
+- change password with no password
+- change password 
+- average score per users
+- user eval list
+- backend stops from creating invalid accounts
