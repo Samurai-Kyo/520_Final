@@ -45,6 +45,7 @@ Back End:
 npm install
 node index.js
 
+The backend requires an MySQL database, an OpenAI, and an Anthropic key.
 backend/keys.js
 {
     "OpenAI": "",
