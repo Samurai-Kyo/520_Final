@@ -1,6 +1,6 @@
 Keith Geneva:
 Front End API
-Svelte Compenents
+Svelte Components
 Documentation
 User Testing
 
@@ -10,15 +10,17 @@ Backend endpoints
 AI endpoints
 Documentation
 Test cases
+Database
 
 Nicholas Santos:
-Svelte Components
-Front End API
-Frontend CSS
-Test cases
+Svelte Components => Login, Rating System, Admin Components, Modals
+Front End API => Admin Tab
+Frontend CSS => Tailwind CSS
+Unit Testing => Account Endpoint Unit Testing
+Backend API => Account Functionality and Admin Functionality 
 
 Nicholas Kenney:
 Backend endpoints
 Frontend CSS
 User Testing
-Video create
+Video Creation
