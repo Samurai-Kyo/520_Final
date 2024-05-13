@@ -219,9 +219,9 @@ app.post('/summarize', async (req, res) => {
     try {
         const username = req.headers.username;
         const token = req.headers.token;
+        const debug = req.headers.debug || false;
         console.log(token)
         if (!checkSession(req.headers.username, token)) {
-            console.log(sessions)
             res.status(401).send("Invalid session token.");
             return;
         }
@@ -257,7 +257,10 @@ app.post('/summarize', async (req, res) => {
                 return;
             }
         }
-        let id = await saveContent(username, code, completions);
+        let id = 0;
+        if(!debug){
+            id = await saveContent(username, code, completions);
+        }
         console.log(completions)
         completions.push({ id: id })
         res.send(completions);
@@ -281,10 +284,12 @@ app.get('/getSummarizations', async (req, res) => {
     try {
         const username = req.headers.username;
         const token = req.headers.token;
-        const targetUsername = req.headers.targetusername;
+        let targetUsername = req.headers.targetusername;
         if (username !== targetUsername) {
             if (!checkSession(username, token, true)) {
                 res.status(403).send("User Not Admin");
+                res.end();
+                return;
             }
         }
         if (targetUsername === "") {
@@ -292,6 +297,7 @@ app.get('/getSummarizations', async (req, res) => {
         }
         if (!checkSession(username, token)) {
             res.status(401).send("Invalid session token.");
+            res.end();
             return;
         }
         const query = 'SELECT * FROM summarizations WHERE username = ?';
@@ -329,6 +335,7 @@ app.post('/uploadSummarization', async (req, res) => {
     try {
         const username = req.headers.username;
         const token = req.headers.token;
+        const debug = req.headers.debug || false;
         if (!checkSession(username, token)) {
             res.status(401).send("Invalid session token.");
             return;
@@ -336,7 +343,10 @@ app.post('/uploadSummarization', async (req, res) => {
         const code = req.body.code;
         const completions = req.body.completions;
         const ratings = req.body.ratings;
-        let id = await saveContent(username, code, completions, ratings);
+        let id = 0;
+        if(!debug) {
+            id = await saveContent(username, code, completions, ratings);
+        }
         res.send("Content uploaded successfully with ID: " + id);
         res.end();
         console.log("Uploaded content for user: ", username);
@@ -378,6 +388,10 @@ app.post('/setRating', async (req, res) => {
             res.status(400).send("Invalid number of ratings provided.");
             return;
         }
+        if (results[0].username !== username) {
+            res.status(403).send("User does not have permission to rate this summarization.");
+            return;
+        }
         let oldContent = JSON.parse(results[0].content);
         let index = 0;
         for (let rating of ratings) {
@@ -413,7 +427,6 @@ app.post('/stats', async (req, res) => {
             return;
         }
         let results = [];
-        console.log(selectedUsers)
         if (selectedUsers.length === 0) {
             const query = 'SELECT * FROM summarizations';
             results = await pool.query(query);
@@ -430,7 +443,6 @@ app.post('/stats', async (req, res) => {
         results.forEach((element) => {
             content.push({ id: element.id, username: element.username, code: element.inputCode, completions: JSON.parse(element.content).content });
         });
-        console.log(content)
         let stats = {};
         stats.totalSummarizations = content.length;
         let totalNaturalRating = 0;
@@ -444,9 +456,11 @@ app.post('/stats', async (req, res) => {
                 if (completion.naturalRating !== 0) numNaturalRatings++;
                 if (completion.usefulRating !== 0) numUsefulRatings++;
                 if (completion.consistentRating !== 0) numConsistentRatings++;
-                totalNaturalRating += completion.naturalRating;
-                totalUsefulRating += completion.usefulRating;
-                totalConsistentRating += completion.consistentRating;
+                if(completion.naturalRating != undefined && completion.usefulRating != undefined && completion.consistentRating != undefined) {
+                    totalNaturalRating += completion.naturalRating;
+                    totalUsefulRating += completion.usefulRating;
+                    totalConsistentRating += completion.consistentRating;
+                }
             }
         }
         stats.averageNaturalRating = totalNaturalRating / numNaturalRatings;
@@ -488,6 +502,7 @@ app.get('/getUsers', async (req, res) => {
         const token = req.headers.token;
         if (!checkSession(username, token, true)) {
             res.status(403).send("Invalid session token: User not admin");
+            res.end()
             return;
         }
         const query = 'SELECT * FROM credentials';
