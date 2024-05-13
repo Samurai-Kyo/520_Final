@@ -129,11 +129,6 @@
 										>Send Review</button
 									>
 									{/if}
-									{#if override}
-									<button class="variant-filled-secondary btn w-1/4" on:click={() => upload()}
-										>Upload Code and Summaries</button
-									>
-									{/if}
 									<button
 										class="variant-filled-secondary btn w-1/4"
 										on:click={() => (summary.rating.isFavorite = !summary.rating.isFavorite)}
@@ -147,6 +142,14 @@
 			</AccordionItem>
 		{/each}
 	</Accordion>
+	{#if override} 
+	Average Naturalness: {listOfSummarizedCode.reduce((/** @type {any} */ acc, /** @type {{ rating: { nScore: any; }; }} */ val) => acc + val.rating.nScore, 0) / listOfSummarizedCode.length}
+	Average Usefulness: {listOfSummarizedCode.reduce((/** @type {any} */ acc, /** @type {{ rating: { uScore: any; }; }} */ val) => acc + val.rating.uScore, 0) / listOfSummarizedCode.length}
+	Average Consistency: {listOfSummarizedCode.reduce((/** @type {any} */ acc, /** @type {{ rating: { cScore: any; }; }} */ val) => acc + val.rating.cScore, 0) / listOfSummarizedCode.length}
+	{/if}
+	{#if override}
+		<button class="variant-filled-secondary btn w-1/4" on:click={() => upload()}>Upload Code and Summaries</button>
+	{/if}
 </div>
 
 <style>
