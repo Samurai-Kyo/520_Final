@@ -163,15 +163,17 @@
 	<AccordionItem>
 		<svelte:fragment slot="summary">User Evaluations</svelte:fragment>
 		<svelte:fragment slot="content">
-			<div class="width-full flex">
-				<label for="userEvaluations" class="p">User</label>
-			</div>
-			<select class="select w-1/4 p-1" name="userEvaluations" bind:value={userName}>
-				{#each data.userList as user}
-					<option value={user}>{user}</option>
-				{/each}
-			</select>
-				<HistoryComponent {data} {userName} />
+			<label for="userEvaluations" class="p pl-4">
+				<p>User</p>
+				<select class="select w-1/4 p-1" name="userEvaluations" bind:value={userName}>
+					{#each data.userList as user}
+						<option value={user}>{user}</option>
+					{/each}
+				</select>
+				<div class="pt-3">
+					<HistoryComponent {data} {userName} />
+				</div>
+			</label>
 		</svelte:fragment>
 	</AccordionItem>
 </Accordion>
