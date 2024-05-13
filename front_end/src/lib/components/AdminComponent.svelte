@@ -99,7 +99,6 @@
 			return;
 		}
 	}
-
 	async function getUserEvaluations() {
 	}
 </script>

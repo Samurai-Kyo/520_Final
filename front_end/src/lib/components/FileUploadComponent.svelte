@@ -9,6 +9,16 @@
 	export let data;
 
 	/**
+	 * @type {Summaries[]}
+	 */
+	let listOfListOfSummarizedCode;
+
+	/**
+	 * @type {Summary[]	}
+	 */
+	let listOfSummarizedCode;
+
+	/**
 	 * @type {FileList}
 	 */
 	let file;
@@ -28,6 +38,23 @@
 	 * @type {any[]}
 	 */
 	let uploadedPairs = [];
+
+	function toggle() {
+		uploadedFile = !uploadedFile;
+	}
+
+	function createSummaries() {
+		let newSummaries = new Summaries();
+		listOfListOfSummarizedCode.forEach((summaries) => {
+			// console.log(summaries);
+			for (let i = 0; i < summaries.summaries.length; i++) {
+				let summary = summaries.summaries[i];
+				newSummaries.addSummary({ summary: summary.summary, model: summary.apiName });
+			}
+		});
+		listOfSummarizedCode = newSummaries.getSummaries();
+		console.log(listOfSummarizedCode);
+	}
 
 	async function onUpload() {
 		// get the text content of the file;
@@ -76,7 +103,9 @@ function extractSummaries(content) {
 <div>
 	<h1 class="text-3xl font-bold">Upload File</h1>
 	<p class="text-lg">Upload a file containing code summarization pairs</p>
-	<pre>{JSON.stringify(exampleCode, null, 2)}</pre>
+	{#if uploadedFile === false}
+		<pre>{JSON.stringify(exampleCode, null, 2)}</pre>
+	{/if}
 </div>
 <div class="flex flex-col justify-center p-4">
 	<FileDropzone class="w-full p-4" name="files" bind:files={file} on:change={onUpload}>
