@@ -64,7 +64,7 @@ npm install
 npm run test
 
 ## Endpoints:
-Backend/Final Project -- Backend API Documentation.pdf
+back_end/Final Project -- Backend API Documentation.pdf
 
 ## DEMO:
 REPLACEME

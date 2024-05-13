@@ -142,13 +142,21 @@
 			</AccordionItem>
 		{/each}
 	</Accordion>
-	{#if override} 
-	Average Naturalness: {listOfSummarizedCode.reduce((/** @type {any} */ acc, /** @type {{ rating: { nScore: any; }; }} */ val) => acc + val.rating.nScore, 0) / listOfSummarizedCode.length}
-	Average Usefulness: {listOfSummarizedCode.reduce((/** @type {any} */ acc, /** @type {{ rating: { uScore: any; }; }} */ val) => acc + val.rating.uScore, 0) / listOfSummarizedCode.length}
-	Average Consistency: {listOfSummarizedCode.reduce((/** @type {any} */ acc, /** @type {{ rating: { cScore: any; }; }} */ val) => acc + val.rating.cScore, 0) / listOfSummarizedCode.length}
-	{/if}
 	{#if override}
+	<div class="font-semibold outline-ourPage ml-8">
+		<p class="pl-2">
+			Average Naturalness: {listOfSummarizedCode.reduce((/** @type {any} */ acc, /** @type {{ rating: { nScore: any; }; }} */ val) => acc + val.rating.nScore, 0) / listOfSummarizedCode.length}
+		</p>
+		<p class="bg-ourPageLighter pl-2">
+			Average Usefulness: {listOfSummarizedCode.reduce((/** @type {any} */ acc, /** @type {{ rating: { uScore: any; }; }} */ val) => acc + val.rating.uScore, 0) / listOfSummarizedCode.length}
+		</p>
+		<p class="pl-2">
+			Average Consistency: {listOfSummarizedCode.reduce((/** @type {any} */ acc, /** @type {{ rating: { cScore: any; }; }} */ val) => acc + val.rating.cScore, 0) / listOfSummarizedCode.length}
+		</p>
+	</div>
+	<div class="pt-3 ml-8">
 		<button class="variant-filled-secondary btn w-1/4" on:click={() => upload()}>Upload Code and Summaries</button>
+	</div>
 	{/if}
 </div>
 
