@@ -1,4 +1,6 @@
 <script>
+	import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
+	import { Ratings } from '@skeletonlabs/skeleton';
 	import ReviewComponent from './ReviewComponent.svelte';
 	import { Store, Summary, Rating } from '../../routes/home/SummaryStore';
 	import { summarizeCode, createReview } from '../../routes/api/summarizer.js';
@@ -123,7 +125,7 @@
 	<!-- Show the summarizations -->
 	{#if listOfSummarizedCode.length > 0}
 		<div class="card w-full space-y-4 p-4">
-			<ReviewComponent />
+			<ReviewComponent {data} {listOfSummarizedCode}/>
 		</div>
 	{/if}
 </div>

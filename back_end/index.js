@@ -507,18 +507,19 @@ app.get('/getUsers', async (req, res) => {
 
 app.post('/makeAdmin', async (req, res) => {
     try {
-        const username = req.headers.username;
-        const token = req.headers.token;
-        const adminName = req.headers.adminname;
-        if (!checkSession(username, token, true)) {
-            res.status(403).send("User Not Admin");
-            return;
-        }
-        const query2 = "UPDATE credentials SET isAdmin = 1 WHERE username = ?"
-        await pool.query(query2, [adminName])
-        res.send("Admin Updated Successfully");
-        res.end();
-        console.log("Admin Updated")
+    const username = req.headers.username;
+    const token = req.headers.token;
+    const adminName = req.headers.adminname;
+    if(!checkSession(username,token,true)){
+      res.status(403).send("User Not Admin");
+      res.end();
+      return;
+    }
+    const query2 = "UPDATE credentials SET isAdmin = 1 WHERE username = ?"
+    await pool.query(query2,[adminName])
+    res.send("Admin Updated Successfully");
+    res.end();
+    console.log("Admin Updated")
     }
     catch (err) {
         console.log("Error in /login: ", err);
@@ -528,19 +529,19 @@ app.post('/makeAdmin', async (req, res) => {
 
 app.get('/deleteUser', async (req, res) => {
     try {
-        const username = req.headers.username;
-        const token = req.headers.token;
-        const toDelete = req.headers.todelete;
-        if (!checkSession(username, token, true)) {
-            res.status(403).send("User Not Admin");
-            res.end();
-            return;
-        }
-        const query2 = "DELETE FROM credentials WHERE username = ?"
-        await pool.query(query2, [toDelete])
-        res.send("Account Deleted Successfully");
+    const username = req.headers.username;
+    const token = req.headers.token;
+    const toDelete= req.headers.todelete;
+    if(!checkSession(username,token,true)) {
+        res.status(403).send("User Not Admin");
         res.end();
-        console.log("Acc Deleted")
+        return;
+    }
+    const query2 = "DELETE FROM credentials WHERE username = ?"
+    await pool.query(query2,[toDelete])
+    res.send("Account Deleted Successfully");
+    res.end();
+    console.log("Acc Deleted")
     }
     catch (err) {
         console.log("Error in /deleteAccount: ", err);

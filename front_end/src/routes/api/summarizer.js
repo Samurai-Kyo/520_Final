@@ -1,5 +1,3 @@
-import { Rating } from '../home/SummaryStore';
-
 /**
  * @param {string} username
  * @param {string} token
@@ -42,8 +40,6 @@ export async function summarizeCode(
 				.map((/** @type {{ text: string; model: string; }} */ summary) => {
 					return { summary: summary.text, model: summary.model };
 				});
-			// console.log('summarizer.js -> remappedData: ');
-			// console.log(remappedData);
 			return {summaries:remappedData, summariesID: id};
 		} else {
 			console.log('Summary failed');
@@ -58,7 +54,7 @@ export async function summarizeCode(
 /**
  * @param {string} username
  * @param {string} token
- * @param {Rating[]} ratings
+ * @param {import('../home/SummaryStore').Rating[]} ratings
  * @param {number} id
  */
 export async function createReview(username, token, id, ratings) {

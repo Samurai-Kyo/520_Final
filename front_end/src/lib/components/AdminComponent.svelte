@@ -23,8 +23,6 @@
 	export let form;
 	let summariesCalculated = false;
 	let userName = '';
-	$: historyObject = [];
-	let loadedHistory = false;
 	const average = {
 		averageNaturalRating: 0,
 		averageUsefulRating: 0,
@@ -101,12 +99,7 @@
 			return;
 		}
 	}
-
 	async function getUserEvaluations() {
-		loadedHistory = false;
-		historyObject = [];
-		loadedHistory = true;
-		historyObject = [userName];
 	}
 </script>
 
@@ -121,33 +114,37 @@
 	<AccordionItem>
 		<svelte:fragment slot="summary">User List</svelte:fragment>
 		<svelte:fragment slot="content">
-			{#each data.userList as user}
-				<Accordion>
-					<AccordionItem>
-						<svelte:fragment slot="summary">{user}</svelte:fragment>
-						<svelte:fragment slot="content"
-							><button class="variant-filled btn" on:click={() => setAdmin(user)}
-								>Make Admin?</button
-							><button class="variant-filled-error btn" on:click={() => delUser(user)}
-								>Delete User?</button
-							><button class="variant-filled-warning btn" on:click={() => changePass(user)}
-								>Change Password?</button
-							></svelte:fragment
-						>
-					</AccordionItem>
-				</Accordion>
-			{/each}
+			<div class="card p-4 max-h-60 max-w-min overflow-auto space-y-4">
+				{#each data.userList as user}
+					<Accordion>
+						<AccordionItem>
+							<svelte:fragment slot="summary">{user}</svelte:fragment>
+							<svelte:fragment slot="content"
+								><button class="variant-filled btn" on:click={() => setAdmin(user)}
+									>Make Admin?</button
+								><button class="variant-filled-error btn" on:click={() => delUser(user)}
+									>Delete User?</button
+								><button class="variant-filled-warning btn" on:click={() => changePass(user)}
+									>Change Password?</button
+								></svelte:fragment
+							>
+						</AccordionItem>
+					</Accordion>
+				{/each}
+			</div>
 		</svelte:fragment>
 	</AccordionItem>
 	<AccordionItem>
 		<svelte:fragment slot="summary">Average Evaluation Score</svelte:fragment>
 		<svelte:fragment slot="content">
-			{#each data.userList as user}
-				<div>
-					<input type="checkbox" autocomplete="off" on:click={() => toggleIfOnList(user)} />
-					{user};
-				</div>
-			{/each}
+			<div class="card p-4 max-h-60 max-w-min overflow-auto space-y-4">
+				{#each data.userList as user}
+					<label class="flex items-center space-x-2">
+						<input type="checkbox" autocomplete="off" on:click={() => toggleIfOnList(user)} />
+						<p>{user}</p>
+					</label>
+				{/each}
+			</div>
 			<button>
 				<button class="variant-filled-secondary btn" on:click={() => getScoreAverage()}
 					>Get Score Average</button
@@ -165,15 +162,17 @@
 	<AccordionItem>
 		<svelte:fragment slot="summary">User Evaluations</svelte:fragment>
 		<svelte:fragment slot="content">
-			<div class="width-full flex">
-				<label for="userEvaluations" class="p">User</label>
-			</div>
-			<select class="select w-1/4 p-1" name="userEvaluations" bind:value={userName}>
-				{#each data.userList as user}
-					<option value={user}>{user}</option>
-				{/each}
-			</select>
-				<HistoryComponent {data} {userName} />
+			<label for="userEvaluations" class="p pl-4">
+				<p>User</p>
+				<select class="select w-1/4 p-1" name="userEvaluations" bind:value={userName}>
+					{#each data.userList as user}
+						<option value={user}>{user}</option>
+					{/each}
+				</select>
+				<div class="pt-3">
+					<HistoryComponent {data} {userName} />
+				</div>
+			</label>
 		</svelte:fragment>
 	</AccordionItem>
 </Accordion>
