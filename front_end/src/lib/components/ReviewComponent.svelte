@@ -12,7 +12,7 @@
 	/**
 	 * @type {Summary[]}
 	 */
-	export let listOfSummarizedCode;
+	export let listOfSummarizedCode = [];
 
 	// ID Of the Summaries
 	let id = 0;

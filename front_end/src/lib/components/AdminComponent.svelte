@@ -23,8 +23,6 @@
 	export let form;
 	let summariesCalculated = false;
 	let userName = '';
-	$: historyObject = [];
-	let loadedHistory = false;
 	const average = {
 		averageNaturalRating: 0,
 		averageUsefulRating: 0,
@@ -101,13 +99,6 @@
 			return;
 		}
 	}
-
-	async function getUserEvaluations() {
-		loadedHistory = false;
-		historyObject = [];
-		loadedHistory = true;
-		historyObject = [userName];
-	}
 </script>
 
 <div class="flex w-full flex-col p-5" />
@@ -145,7 +136,7 @@
 			{#each data.userList as user}
 				<div>
 					<input type="checkbox" autocomplete="off" on:click={() => toggleIfOnList(user)} />
-					{user};
+					{user}
 				</div>
 			{/each}
 			<button>
@@ -173,7 +164,7 @@
 					<option value={user}>{user}</option>
 				{/each}
 			</select>
-				<HistoryComponent {data} {userName} />
+			<HistoryComponent {data} {userName} />
 		</svelte:fragment>
 	</AccordionItem>
 </Accordion>
