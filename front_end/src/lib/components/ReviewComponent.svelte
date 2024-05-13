@@ -3,6 +3,7 @@
 	import { Ratings } from '@skeletonlabs/skeleton';
 	import { Store, Summary } from '../../routes/home/SummaryStore';
 	import { createReview } from '../../routes/api/summarizer.js';
+	import { uploadSummarization } from '../../routes/api/uploadFile';
 
 	/**
 	 * @type {{ isAdmin: string ; username: string; token: string , userList:Array<string>}}
@@ -14,14 +15,24 @@
 	 */
 	export let listOfSummarizedCode;
 
+	/**
+	 * @type {boolean}
+	 */
+	export let override = false;
+
+	export let originalCode = '';
+
+
 	// ID Of the Summaries
 	let id = 0;
-
+   
 	Store.subscribe((_summaries) => {
+		if(!override) {
 		listOfSummarizedCode = _summaries.getSummaries();
 		id = _summaries.id;
 		console.log('Store updated');
 		console.log(JSON.stringify(listOfSummarizedCode));
+		}
 	});
 
 	async function sendReview() {
@@ -33,6 +44,23 @@
 		}
 		createReview(username, token, id, ratings);
 	}
+	
+	async function upload() {
+		const username = data.username;
+		const token = data.token;
+		let completions = [];
+		for (let i = 0; i < listOfSummarizedCode.length; i++) {
+			completions.push({"model": listOfSummarizedCode[i].apiName, "text": listOfSummarizedCode[i].summary});
+		}
+		let reviews = [];
+		for (let i = 0; i < listOfSummarizedCode.length; i++) {
+			reviews.push({"naturalRating": listOfSummarizedCode[i].rating.nScore, "usefulRating": listOfSummarizedCode[i].rating.uScore, "consistentRating": listOfSummarizedCode[i].rating.cScore, "favorite": listOfSummarizedCode[i].rating.isFavorite, "userNotes": listOfSummarizedCode[i].rating.evalText});
+		}
+		uploadSummarization(username, token,{"code": originalCode, "completions": completions, "ratings": reviews} );
+	}
+
+
+	console.log(listOfSummarizedCode.length);
 </script>
 
 <div class="flex-col justify-center p-4">
@@ -96,9 +124,16 @@
 										placeholder="Please give a few lines of feedback"
 										bind:value={summary.rating.evalText}
 									/>
+									{#if !override}
 									<button class="variant-filled-secondary btn w-1/4" on:click={() => sendReview()}
 										>Send Review</button
 									>
+									{/if}
+									{#if override}
+									<button class="variant-filled-secondary btn w-1/4" on:click={() => upload()}
+										>Upload Code and Summaries</button
+									>
+									{/if}
 									<button
 										class="variant-filled-secondary btn w-1/4"
 										on:click={() => (summary.rating.isFavorite = !summary.rating.isFavorite)}

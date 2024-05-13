@@ -508,6 +508,8 @@ app.post('/makeAdmin', async (req, res) => {
     const adminName = req.headers.adminname;
     if(!checkSession(username,token,true)){
       res.status(403).send("User Not Admin");
+      res.end();
+      return;
     }
     const query2 = "UPDATE credentials SET isAdmin = 1 WHERE username = ?"
     await pool.query(query2,[adminName])
@@ -526,8 +528,10 @@ app.get('/deleteUser', async (req, res) => {
     const username = req.headers.username;
     const token = req.headers.token;
     const toDelete= req.headers.todelete;
-    if(!checkSession(username,token,true)){
-      res.status(403).send("User Not Admin");
+    if(!checkSession(username,token,true)) {
+        res.status(403).send("User Not Admin");
+        res.end();
+        return;
     }
     const query2 = "DELETE FROM credentials WHERE username = ?"
     await pool.query(query2,[toDelete])
