@@ -42,6 +42,7 @@ npm install
 npm run dev
 
 Back End:
+npm install
 node index.js
 
 backend/keys.js
