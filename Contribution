@@ -1,0 +1,29 @@
+Keith Geneva:
+Front End API => Admin, Upload, and History endpoints
+Svelte Components => History, Admin, Code Summary, Review, and User components
+Documentation => Readme and contributions
+User Testing => Testing account privileges and database history 
+
+Connor Gibbons:
+Front End API => Summarizer Endpoints
+AI endpoints => Acquiring AI keys and querying with API
+Documentation => Backend Endpoints
+Test cases => Summarizer Endpoint Testing
+Database => Setup mysql instance
+Money for AI => accounts for API keys
+
+Nicholas Santos:
+Svelte Components => Login, Rating System, Admin Components, Modals
+Front End API => Admin Tab
+Frontend CSS => Tailwind CSS
+Unit Testing => Account Endpoint Unit Testing
+Backend API => Account Functionality and Admin Functionality 
+
+Nicholas Kenney:
+Backend endpoints => User credentials and creation
+Frontend CSS => Menus, colors, dropdowns
+User Testing => Refinement of CSS
+Video Creation => Demo Video
+
+
+See github commits for details

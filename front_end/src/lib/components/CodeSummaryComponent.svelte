@@ -105,6 +105,7 @@
 					<select class="select w-1/4 p-1" name="codeLanguage" bind:value={codeLanguage}>
 						<option value={'Javascript'}> Javascript </option>
 						<option value={'Typescript'}> Typescript </option>
+						<option value={'Python'}> Python</option>
 						<option value={'Java'}> Java</option>
 						<option value={'C#'}> C#</option>
 						<option value={'C++'}> C++</option>
