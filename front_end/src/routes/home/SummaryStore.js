@@ -77,10 +77,12 @@ export class Summaries {
 	/**
 	 * @param {Array<Summary>} summaries
 	 */
-	constructor(summaries = [], id = 0) {
+	constructor(summaries = [], id = 0, code = '') {
 		this.summaries = summaries;
 		this.id = id;
+		this.code = code;
 	}
+	
 	getSummaries() {
 		return this.summaries;
 	}
@@ -95,11 +97,13 @@ export class Summaries {
 
 	/**
 	 * @param {any[]} json
+	 * @param {string} code
 	 */
-	static fromJson(json) {
+	static fromJson(json, code = '') {
 		const summaries = new Summaries(
 			json.map((summary) => new Summary(summary.code, summary.model))
 		);
+		summaries.code = code;
 		return summaries;
 	}
 }
