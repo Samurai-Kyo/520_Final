@@ -57,4 +57,4 @@ back_end/keys.json
 }
 
 ## Endpoints:
-Backend/Final Project -- Backend API Documentation.pdf
+back_end/Final Project -- Backend API Documentation.pdf
