@@ -13,7 +13,7 @@
 	/**
 	 * @type {Summary[]}
 	 */
-	export let listOfSummarizedCode;
+	export let listOfSummarizedCode = [];
 
 	/**
 	 * @type {boolean}

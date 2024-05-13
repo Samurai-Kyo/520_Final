@@ -1,4 +1,6 @@
 <script>
+	import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
+	import { Ratings } from '@skeletonlabs/skeleton';
 	import ReviewComponent from './ReviewComponent.svelte';
 	import { Store, Summary, Rating } from '../../routes/home/SummaryStore';
 	import { summarizeCode, createReview } from '../../routes/api/summarizer.js';
