@@ -413,4 +413,200 @@ test.serial('/deleteUser delete testUser', async t => {
 
 })
 
+test.serial('/getUsers returns correct status code and type', async t => {
+  
+    const response = await fetch(`http://localhost:3000/getUsers`, {
+      method: 'GET',
+      headers: {
+        username: "admin",
+        token: adminToken
+      }
+    });
+    const data = await response.json();
+    t.is(response.ok, true);
+    t.true(Array.isArray(data.userList));
+    if(data.userList.length > 0){
+      t.true(data.userList[0] != undefined);
+    }
+})
+
+test.serial('/getUsers fails with bad token', async t => {
+
+      const response = await fetch(`http://localhost:3000/getUsers`, {
+        method: 'GET',
+        headers: {
+          username: "admin",
+          token: ""
+        }
+      });
+      t.is(response.status, 403);
+})
+
+test.serial('/summarize code returns correct status code and type', async t => {
+  const response = await fetch(`http://localhost:3000/summarize/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      username: "admin",
+      token: adminToken,
+      debug: true
+    },
+    body: JSON.stringify({ code: "console.log('hello world')", models: "gpt-4-turbo" })
+  });
+
+  const data = await response.json();
+  t.is(response.ok, true);
+  t.true(Array.isArray(data));
+  if(data.length > 0){
+    t.true(data[0] != undefined);
+  }
+  t.true[data[data.length - 1].id == 0];
+})
+
+test.serial('/summarize code fails with bad token', async t => {
+  const response = await fetch(`http://localhost:3000/summarize/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      username: "admin",
+      token: "",
+      debug: true
+    },
+    body: JSON.stringify({ code: "console.log('hello world')", models: "gpt-4-turbo" })
+  });
+
+  t.is(response.status, 401);
+})
+
+test.serial('/summarize code fails with badly formed body', async t => {
+  const response = await fetch(`http://localhost:3000/summarize/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      username: "admin",
+      token: adminToken,
+      debug: true
+    },
+    body: JSON.stringify({ code: "console.log('hello world')" })
+  });
+
+  t.is(response.status, 500);
+})
+
+test.serial('/uploadSummarization returns correct status code', async t => {
+  const response = await fetch(`http://localhost:3000/uploadSummarization/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      username: "admin",
+      token: adminToken
+    },
+    body: JSON.stringify({ code: "console.log('hello world')", completions: [{ model: "gpt-4-turbo", text: "hello world" }], ratings: [{ naturalRating: 5, usefulRating: 5, consistentRating: 5, favorite: true, userNotes: "hello world" }] })
+  });
+
+  t.is(response.ok, true);
+})
+
+test.serial('/uploadSummarization fails with bad token', async t => {
+  const response = await fetch(`http://localhost:3000/uploadSummarization/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      username: "admin",
+      token: "",
+    },
+    body: JSON.stringify({ code: "console.log('hello world')", completions: [{ model: "gpt-4-turbo", text: "hello world" }], ratings: [{ naturalRating: 5, usefulRating: 5, consistentRating: 5, favorite: true, userNotes: "hello world" }] })
+  });
+
+  t.is(response.status, 401);
+})
+
+
+test.serial('/getSummarizations returns correct status code and type', async t => {
+  const response = await fetch(`http://localhost:3000/getSummarizations/`, {
+    method: 'GET',
+    headers: {
+      username: "admin",
+      token: adminToken
+    }
+  });
+  const data = await response.json();
+  t.is(response.ok, true);
+  t.true(Array.isArray(data));
+  if(data.length > 0){
+    t.true(data[0] != undefined);
+    t.true(data[0].id != undefined);
+  }
+})
+
+test.serial('/getSummarizations fails with bad token', async t => {
+  const response = await fetch(`http://localhost:3000/getSummarizations/`, {
+    method: 'GET',
+    headers: {
+      username: "admin",
+      token: "",
+      targetUserName: "admin"
+    }
+  });
+  t.is(response.status, 401);
+})
+
+test.serial('/getSummarizations falls back to own user if targetUsername is blank', async t => {
+  const response = await fetch(`http://localhost:3000/getSummarizations/`, {
+    method: 'GET',
+    headers: {
+      username: "admin",
+      token: adminToken,
+      targetUserName: ""
+    }
+  });
+  t.is(response.status, 200);
+})
+
+test.serial('/getSummarizations returns no results for a bad username', async t => {
+  const response = await fetch(`http://localhost:3000/getSummarizations/`, {
+    method: 'GET',
+    headers: {
+      username: "admin",
+      token: adminToken,
+      targetUserName: "badusernamethatdoesn'texistandneverwould1"
+    }
+  });
+  const data = await response.json();
+  t.is(response.ok, true);
+  t.true(Array.isArray(data));
+  t.true(data.length == 0);
+})
+
+test.serial('/setRating should block users from rating others\' ratings.', async t => {
+  const response = await fetch(`http://localhost:3000/setRating/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      username: "admin",
+      token: adminToken,
+      id: "55" // This ID is of a rating made by a different user (nickkenney)
+    },
+    body: JSON.stringify({ ratings: [{ naturalRating: 5, usefulRating: 5, consistentRating: 5, favorite: true, userNotes: "hello world" }] })
+  });
+
+  t.is(response.status, 403);
+})
+
+test.serial('/stats returns correct status code and type', async t => {
+  const response = await fetch(`http://localhost:3000/stats`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      username: "admin",
+      token: adminToken
+    },
+    body: JSON.stringify({ selectedUsers: ["admin"]})
+  });
+  const data = await response.json();
+  t.is(response.ok, true);
+  t.true(data.averageNaturalRating != undefined);
+  t.true(data.averageUsefulRating != undefined);
+  t.true(data.averageConsistentRating != undefined);
+})
 
