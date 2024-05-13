@@ -56,6 +56,13 @@ back_end/keys.json
     "sqlPassword": ""
 }
 
+## Testing:
+The front end and back end must be running.
+
+cd test
+npm install
+npm run test
+
 ## Endpoints:
 Backend/Final Project -- Backend API Documentation.pdf
 
