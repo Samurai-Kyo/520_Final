@@ -45,15 +45,14 @@
 					uploadedPairs.push({code: json[i].code, summaries: extractSummaries(json[i].completions)});
 				}
 				uploadedFile = true;
-
+				// @ts-ignore
+				document.querySelector('pre').innerHTML = "";
 			} else {
 				alert('invalid json format');
 			}
 		} catch (e) {
 			alert('json parse failed: ' + e);
 		}
-		// @ts-ignore
-		document.querySelector('pre').innerHTML = "";
 	}
 
 	/**
