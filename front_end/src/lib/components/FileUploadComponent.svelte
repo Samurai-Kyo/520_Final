@@ -23,7 +23,7 @@
 	 */
 	let file;
 	let exampleCode = {
-		content: [
+		contents: [
 		{
 			code: 'your code here',
 			completions: [
