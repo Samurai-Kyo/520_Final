@@ -53,8 +53,8 @@
 								<svelte:fragment slot="content">
 									<!-- Ratings for each summary -->
 									<div class="outline-ourPage ml-4">
-										<span class="flex">
-											<p class="p w-1/3">Naturalness? (1-5)</p>
+										<span class="flex pt-3 pb-3">
+											<p class="p w-1/3 pl-2">Naturalness? (1-5)</p>
 											<Ratings
 												bind:value={summary.rating.nScore}
 												max={5}
@@ -65,8 +65,8 @@
 												<svelte:fragment slot="full">●</svelte:fragment>
 											</Ratings>
 										</span>
-										<span class="bg-ourPageLighter flex">
-											<p class="p w-1/3">Usefulness? (1-5)</p>
+										<span class="bg-ourPageLighter flex pt-3 pb-3">
+											<p class="p w-1/3 pl-2">Usefulness? (1-5)</p>
 											<Ratings
 												bind:value={summary.rating.uScore}
 												max={5}
@@ -77,8 +77,8 @@
 												<svelte:fragment slot="full">●</svelte:fragment>
 											</Ratings>
 										</span>
-										<span class="flex">
-											<p class="p w-1/3">Consistent? (1-5)</p>
+										<span class="flex pt-3 pb-3">
+											<p class="p w-1/3 pl-2">Consistent? (1-5)</p>
 											<Ratings
 												bind:value={summary.rating.cScore}
 												max={5}
