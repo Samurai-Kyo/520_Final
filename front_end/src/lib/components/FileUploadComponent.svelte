@@ -1,9 +1,8 @@
 <script>
 	import { FileDropzone } from '@skeletonlabs/skeleton';
-	import { Summary } from '../../routes/home/SummaryStore';
+	import { uploadSummarization } from '../../routes/api/uploadFile.js';
 	import ReviewComponent from './ReviewComponent.svelte';
-	import { Summaries } from '../../routes/home/SummaryStore';
-
+	import { Rating, Summaries, Summary } from '../../routes/home/SummaryStore';
 	/**
 	 * @type {{ isAdmin: string ; username: string; token: string , userList:Array<string>}}
 	 */
@@ -23,35 +22,22 @@
 	 * @type {FileList}
 	 */
 	let file;
-	let exampleCode = [
+	let exampleCode = {
+		content: [
 		{
 			code: 'your code here',
-			summaries: [
-				{
-					apiName: 'model name',
-					summary: 'completion text'
-				},
-				{
-					apiName: 'model name',
-					summary: 'completion text'
-				}
-			]
-		},
-		{
-			code: 'your code here',
-			summaries: [
-				{
-					apiName: 'model name',
-					summary: 'completion text'
-				},
-				{
-					apiName: 'model name',
-					summary: 'completion text'
-				}
+			completions: [
+				{ model: 'model name', text: 'completion text' },
+				{ model: 'model name', text: 'completion text' }
 			]
 		}
-	];
+		]
+	};
 	let uploadedFile = false;
+	/**
+	 * @type {any[]}
+	 */
+	let uploadedPairs = [];
 
 	function toggle() {
 		uploadedFile = !uploadedFile;
@@ -75,21 +61,43 @@
 		let text = await file[0].text();
 		try {
 			/**
-			 * @type {Summaries[] }
+			 * @type {{code: string, completions: {model: string, text: string}[]}[]}
 			 */
-			let json = await JSON.parse(text);
-			if (json.length > 0) {
-				listOfListOfSummarizedCode = json;
-				// console.log(listOfListOfSummarizedCode);
-				createSummaries();
+			let json = JSON.parse(text).contents;
+			if (
+				json[0].code &&
+				json[0].completions
+			) {
+				for (let i = 0; i < json.length; i++) {
+					uploadedPairs.push({code: json[i].code, summaries: extractSummaries(json[i].completions)});
+				}
 				uploadedFile = true;
+
 			} else {
 				alert('invalid json format');
 			}
 		} catch (e) {
 			alert('json parse failed: ' + e);
 		}
+		// @ts-ignore
+		document.querySelector('pre').innerHTML = "";
 	}
+
+	/**
+	 * @param {{model: string, text: string}[]} content
+	 */
+function extractSummaries(content) {
+	/**
+	 * @type {Summary[]}
+	 */
+	let summaries = [];
+	for (let i = 0; i < content.length; i++) {
+		let summary = new Summary(content[i].text, content[i].model);
+		summaries.push(summary);
+	}
+	return summaries;
+}
+
 </script>
 
 <div>
@@ -104,8 +112,13 @@
 		<svelte:fragment slot="message">Upload File of Code Summarization Pairs</svelte:fragment>
 	</FileDropzone>
 </div>
-<button class="variant-filled-secondary btn w-1/4" on:click={() => toggle()}>Send Review</button>
-{#if uploadedFile}
-	<p class="text-error-500">Uploaded File!</p>
-	<ReviewComponent {data} {listOfSummarizedCode} />
+{#if uploadedFile === true}
+	<p class="text-error-500">Uploaded File with {uploadedPairs.length} pairs!</p>
+	{#each uploadedPairs as pair}
+		<div class="card w-full space-y-4 p-4">
+			{pair.code}
+			<ReviewComponent {data} listOfSummarizedCode = {pair.summaries} override={true} originalCode={pair.code}/>
+		</div>
+		<br>
+	{/each}
 {/if}
