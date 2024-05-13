@@ -32,13 +32,8 @@
 </script>
 
 <div class="flex w-full flex-col p-5" />
-<Accordion>
-	<AccordionItem>
-		<svelte:fragment slot="summary">Change Password</svelte:fragment>
-		<svelte:fragment slot="content"
-			><button class="variant-filled-warning btn" on:click={() => changePass()}>
-				Change Password?
-			</button>
-		</svelte:fragment>
-	</AccordionItem>
-</Accordion>
+	<div class="flex place-content-center">
+		<button class="variant-filled-warning btn" on:click={() => changePass()}>
+			Change Password?
+		</button>
+	</div>
